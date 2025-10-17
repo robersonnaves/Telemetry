@@ -1,0 +1,74 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: telemetry-stack
+    environment: development
+
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+scrape_configs:
+  # Prometheus itself
+  - job_name: prometheus
+    static_configs:
+      - targets: [localhost:9090]
+    scrape_interval: 5s
+    metrics_path: /metrics
+
+  # OpenTelemetry Collector metrics
+  - job_name: otel-collector
+    static_configs:
+      - targets: [otel-collector:8888]
+    scrape_interval: 10s
+    metrics_path: /metrics
+
+  # OpenTelemetry Collector Prometheus exporter
+  - job_name: otel-collector-prometheus
+    static_configs:
+      - targets: [otel-collector:8889]
+    scrape_interval: 10s
+    metrics_path: /metrics
+
+  # cAdvisor container metrics
+  - job_name: cadvisor
+    static_configs:
+      - targets: [cadvisor:8080]
+    scrape_interval: 15s
+    metrics_path: /metrics
+    scrape_timeout: 10s
+
+  # Jaeger components (if they expose metrics)
+  - job_name: jaeger-collector
+    static_configs:
+      - targets: [jaeger-collector:14269]
+    scrape_interval: 30s
+    metrics_path: /metrics
+    scrape_timeout: 10s
+
+  - job_name: jaeger-query
+    static_configs:
+      - targets: [jaeger-query:16687]
+    scrape_interval: 30s
+    metrics_path: /metrics
+    scrape_timeout: 10s
+
+  # Loki metrics
+  - job_name: loki
+    static_configs:
+      - targets: [loki:3100]
+    scrape_interval: 30s
+    metrics_path: /metrics
+    scrape_timeout: 10s
+
+  # Grafana metrics
+  - job_name: grafana
+    static_configs:
+      - targets: [grafana:3000]
+    scrape_interval: 30s
+    metrics_path: /metrics
+    scrape_timeout: 10s
+
+# Remote write disabled to prevent loops
+# remote_write: []
