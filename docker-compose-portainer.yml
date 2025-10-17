@@ -13,7 +13,7 @@ services:
     networks:
       - telemetry
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:14269/"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://jaeger-collector:14269/"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -33,7 +33,7 @@ services:
     depends_on:
       - jaeger-collector
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:16686/"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://jaeger-query:16686/"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -59,7 +59,7 @@ services:
       - prometheus
       - loki
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8888/metrics"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://otel-collector:8888/metrics"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -87,7 +87,7 @@ services:
     networks:
       - telemetry
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://prometheus:9090/-/healthy"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -108,7 +108,7 @@ services:
     networks:
       - telemetry
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3100/ready"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://loki:3100/ready"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -132,7 +132,7 @@ services:
     networks:
       - telemetry
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/healthz"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://cadvisor:8080/healthz"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -160,7 +160,7 @@ services:
       - loki
       - jaeger-query
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1"]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://grafana:3000/api/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -184,7 +184,7 @@ configs:
         # Prometheus itself
         - job_name: prometheus
           static_configs:
-            - targets: [localhost:9090]
+            - targets: [prometheus:9090]
           scrape_interval: 5s
           metrics_path: /metrics
 
@@ -270,7 +270,7 @@ configs:
               - job_name: otel-collector
                 scrape_interval: 10s
                 static_configs:
-                  - targets: [localhost:8888]
+                  - targets: [otel-collector:8888]
 
       processors:
         # Batch processor to optimize data sending
