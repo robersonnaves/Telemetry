@@ -1,10 +1,10 @@
 services:
   otel-collector:
     image: otel/opentelemetry-collector:latest
-    command: [ "--config=/etc/otel-collector.yaml" ]
+    command: ["--config=/etc/config/otel-collector.yaml"]
     volumes:
-      - ./otel-collector.yaml:/etc/otel-collector.yaml
-
+      - ./config:/etc/config
+  
   jaeger:
     image: jaegertracing/all-in-one:latest
     ports:
