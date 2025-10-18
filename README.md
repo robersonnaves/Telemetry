@@ -5,14 +5,16 @@ Uma stack simplificada de observabilidade usando Docker Compose com OpenTelemetr
 ## 🏗️ Arquitetura
 
 ```
-Applications → OpenTelemetry Collector → Jaeger All-in-One
-                    (OTLP)                    (Traces + UI)
+Applications → OpenTelemetry Collector → Traces → Jaeger All-in-One
+                    (OTLP)                    ↓
+                                         Metrics → Prometheus
 ```
 
-### Por que dois serviços?
+### Por que três serviços?
 
 - **OpenTelemetry Collector**: Coletor universal que recebe dados via OTLP de diferentes aplicações e protocolos
 - **Jaeger All-in-One**: Sistema completo de tracing distribuído com interface web para visualização
+- **Prometheus**: Sistema de monitoramento e armazenamento de métricas em séries temporais
 
 ## 📋 Pré-requisitos
 
@@ -40,7 +42,8 @@ docker-compose ps
 | Serviço | URL | Descrição |
 |---------|-----|-----------|
 | **Jaeger UI** | http://localhost:16686 | Interface web para visualização de traces |
-| **OTLP gRPC** | localhost:4317 | Endpoint para envio de traces via OTLP gRPC |
+| **Prometheus** | http://localhost:9090 | Interface web para visualização de métricas |
+| **OTLP gRPC** | localhost:4317 | Endpoint para envio de traces e métricas via OTLP gRPC |
 
 ### 3. Enviar Dados de Teste
 
@@ -100,6 +103,7 @@ with tracer.start_as_current_span("test-operation") as span:
 using OpenTelemetry;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using OpenTelemetry.Metrics;
 using System.Diagnostics;
 
 // Configurar o OpenTelemetry
@@ -113,8 +117,24 @@ using var tracerProvider = Sdk.CreateTracerProviderBuilder()
     })
     .Build();
 
-// Criar um ActivitySource
+// Configurar métricas
+using var meterProvider = Sdk.CreateMeterProviderBuilder()
+    .SetResourceBuilder(ResourceBuilder.CreateDefault()
+        .AddService(serviceName: "test-service", serviceVersion: "1.0.0"))
+    .AddMeter("MyApplication")
+    .AddOtlpExporter(options =>
+    {
+        options.Endpoint = new Uri("http://localhost:4317");
+    })
+    .Build();
+
+// Criar um ActivitySource e Meter
 using var activitySource = new ActivitySource("MyApplication");
+using var meter = new Meter("MyApplication");
+
+// Criar contadores de métricas
+var requestCounter = meter.CreateCounter<int>("requests_total", "Total number of requests");
+var responseTimeHistogram = meter.CreateHistogram<double>("response_time_seconds", "Response time in seconds");
 
 // Criar uma trace
 using var activity = activitySource.StartActivity("test-operation");
@@ -123,11 +143,18 @@ activity?.SetTag("operation", "test");
 activity?.SetTag("http.method", "GET");
 activity?.SetTag("http.url", "http://localhost:5000/api/test");
 
-// Simular trabalho
+// Simular trabalho e registrar métricas
+var stopwatch = Stopwatch.StartNew();
 await Task.Delay(100);
+stopwatch.Stop();
+
+// Registrar métricas
+requestCounter.Add(1, new KeyValuePair<string, object?>("method", "GET"));
+responseTimeHistogram.Record(stopwatch.Elapsed.TotalSeconds);
 
 Console.WriteLine($"Trace ID: {activity?.TraceId}");
 Console.WriteLine($"Span ID: {activity?.SpanId}");
+Console.WriteLine($"Response time: {stopwatch.ElapsedMilliseconds}ms");
 ```
 
 ##### Dependências NuGet para C#
@@ -136,6 +163,7 @@ Console.WriteLine($"Span ID: {activity?.SpanId}");
 <PackageReference Include="OpenTelemetry" Version="1.7.0" />
 <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.7.0" />
 <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.7.0" />
+<PackageReference Include="System.Diagnostics.DiagnosticSource" Version="8.0.0" />
 ```
 
 ### 4. Parar a Stack
@@ -157,13 +185,35 @@ docker-compose down -v
 - **Compare**: Comparação de traces
 - **Dependencies**: Análise de dependências entre serviços
 
+### Prometheus UI
+- **Targets**: Status dos endpoints sendo monitorados
+- **Graph**: Visualização de métricas com queries PromQL
+- **Alerts**: Configuração e visualização de alertas
+- **Status**: Informações sobre configuração e armazenamento
+
+### Exemplos de Queries PromQL
+```promql
+# Taxa de requisições por segundo
+rate(requests_total[5m])
+
+# Tempo de resposta percentil 95
+histogram_quantile(0.95, rate(response_time_seconds_bucket[5m]))
+
+# Total de requisições por método HTTP
+sum by (method) (requests_total)
+
+# Uso de CPU do OpenTelemetry Collector
+rate(otelcol_processor_batch_batch_send_size_sum[5m])
+```
+
 ## 🔧 Configuração
 
 ### OpenTelemetry Collector
 
 O collector está configurado para:
-- **Receber dados via OTLP gRPC**: porta 4317
+- **Receber dados via OTLP gRPC**: porta 4317 (traces e métricas)
 - **Exportar traces para Jaeger**: via OTLP para jaeger:4317
+- **Exportar métricas para Prometheus**: porta 8889
 
 ### Jaeger All-in-One
 
@@ -171,6 +221,14 @@ Configurado com:
 - **Storage**: Memória (dados perdidos ao reiniciar)
 - **UI**: Interface web na porta 16686
 - **OTLP**: Recebe traces na porta 4317
+
+### Prometheus
+
+Configurado com:
+- **Storage**: Volume persistente (dados mantidos entre reinicializações)
+- **Retention**: 7 dias
+- **UI**: Interface web na porta 9090
+- **Scraping**: OpenTelemetry Collector (porta 8889) e auto-monitoramento
 
 ## 🐛 Troubleshooting
 
@@ -183,6 +241,7 @@ docker-compose logs
 # Ver logs de um serviço específico
 docker-compose logs otel-collector
 docker-compose logs jaeger
+docker-compose logs prometheus
 ```
 
 ### Verificar Status dos Serviços
@@ -202,6 +261,7 @@ docker-compose ps --format "table {{.Name}}\t{{.Status}}"
    # Verificar portas em uso
    netstat -tulpn | grep :16686
    netstat -tulpn | grep :4317
+   netstat -tulpn | grep :9090
    
    # Parar serviço conflitante ou alterar porta no docker-compose.yml
    ```
@@ -215,7 +275,16 @@ docker-compose ps --format "table {{.Name}}\t{{.Status}}"
    docker-compose logs jaeger
    ```
 
-3. **Falta de memória**:
+3. **Prometheus não coleta métricas**:
+   ```bash
+   # Verificar se o collector está exportando métricas
+   curl http://localhost:8889/metrics
+   
+   # Verificar logs do Prometheus
+   docker-compose logs prometheus
+   ```
+
+4. **Falta de memória**:
    ```bash
    # Verificar uso de memória
    docker stats
@@ -223,7 +292,7 @@ docker-compose ps --format "table {{.Name}}\t{{.Status}}"
    # Ajustar limites no docker-compose.yml se necessário
    ```
 
-4. **Traces não aparecem na UI**:
+5. **Traces não aparecem na UI**:
    - Verificar se os dados estão sendo enviados corretamente
    - Verificar logs: `docker-compose logs jaeger`
    - Reiniciar serviços: `docker-compose restart`
@@ -247,7 +316,8 @@ docker-compose up -d
 Telemetry/
 ├── docker-compose.yml              # Orquestração dos serviços
 ├── config/
-│   └── otel-collector.yaml         # Configuração do OpenTelemetry Collector
+│   ├── otel-collector.yaml         # Configuração do OpenTelemetry Collector
+│   └── prometheus.yml              # Configuração do Prometheus
 └── README.md                       # Este arquivo
 ```
 
@@ -255,13 +325,15 @@ Telemetry/
 
 - [OpenTelemetry Documentation](https://opentelemetry.io/docs/)
 - [Jaeger Documentation](https://www.jaegertracing.io/docs/)
+- [Prometheus Documentation](https://prometheus.io/docs/)
 - [OTLP Protocol](https://opentelemetry.io/docs/specs/otlp/)
 
 ## 📝 Notas
 
 - Esta stack é ideal para desenvolvimento e testes
 - Para produção, considere usar storage persistente (Elasticsearch/Cassandra) para o Jaeger
-- Os dados são armazenados em memória e são perdidos ao reiniciar os containers
+- Traces são armazenados em memória e são perdidos ao reiniciar os containers
+- Métricas são armazenadas persistentemente no Prometheus (7 dias de retenção)
 - Use SDKs OpenTelemetry para integração com suas aplicações
 
 ## 🤝 Contribuição
