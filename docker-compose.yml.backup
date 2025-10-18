@@ -150,7 +150,6 @@ services:
       - "3000:3000"
     volumes:
       - grafana-data:/var/lib/grafana
-      - ./grafana/dashboards:/var/lib/grafana/dashboards
       - ./grafana/provisioning:/etc/grafana/provisioning
     networks:
       - telemetry
@@ -165,31 +164,6 @@ services:
       retries: 3
       start_period: 40s
 
-
-  # Node Exporter - Host metrics
-  node-exporter:
-    image: prom/node-exporter:v1.7.0
-    container_name: node-exporter
-    restart: unless-stopped
-    ports:
-      - "9100:9100"
-    command:
-      - --path.rootfs=/host/root
-      - --path.procfs=/host/proc
-      - --path.sysfs=/host/sys
-      - --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($|/)
-      - --collector.filesystem.fs-types-exclude=^(sysfs|procfs|devtmpfs|tmpfs|overlay|squashfs|nsfs|cgroup2?)$
-    volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /:/host/root:ro
-    networks:
-      - telemetry
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9100/metrics"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 volumes:
   jaeger-storage-data:
     driver: local

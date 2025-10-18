@@ -72,11 +72,3 @@ scrape_configs:
 
 # Remote write disabled to prevent loops
 # remote_write: []
-
-  # Node Exporter for host metrics
-  - job_name: node-exporter
-    static_configs:
-      - targets: [node-exporter:9100]
-    scrape_interval: 15s
-    metrics_path: /metrics
-    scrape_timeout: 10s
