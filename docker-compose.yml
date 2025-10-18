@@ -38,8 +38,6 @@ services:
       timeout: 10s
       retries: 3
 
-
-
   # OpenTelemetry Collector
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
@@ -165,7 +163,6 @@ services:
       retries: 3
       start_period: 40s
 
-
   # Node Exporter - Host metrics
   node-exporter:
     image: prom/node-exporter:v1.7.0
@@ -190,6 +187,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+
 volumes:
   jaeger-storage-data:
     driver: local
@@ -203,6 +201,3 @@ volumes:
 networks:
   telemetry:
     driver: bridge
-#    ipam:
-#      config:
-#        - subnet: 172.20.0.0/16
