@@ -53,7 +53,7 @@ processors:
 exporters:
   # OTLP exporter for traces to Jaeger
   otlp/jaeger:
-    endpoint: http://jaeger-collector:14268/api/traces
+    endpoint: http://jaeger-collector:14268
 
   # Debug exporter for logs
   debug:
