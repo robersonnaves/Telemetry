@@ -1,6 +1,6 @@
 services:
   otel-collector:
-    container_name: otel-collector
+    container_name: telemetry-otel-collector
     image: otel/opentelemetry-collector:latest
     command: ["--config=/etc/config/otel-collector.yaml"]
     volumes:
@@ -12,7 +12,7 @@ services:
       - telemetry
 
   jaeger:
-    container_name: jaeger
+    container_name: telemetry-jaeger
     image: jaegertracing/all-in-one:latest
     ports:
       - "16686:16686"
@@ -20,7 +20,7 @@ services:
       - telemetry
 
   prometheus:
-    container_name: prometheus
+    container_name: telemetry-prometheus
     image: prom/prometheus:latest
     restart: unless-stopped
     command:
