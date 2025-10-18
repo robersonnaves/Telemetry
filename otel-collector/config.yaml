@@ -53,9 +53,7 @@ processors:
 exporters:
   # OTLP exporter for traces to Jaeger
   otlp/jaeger:
-    endpoint: jaeger-collector:14250
-    tls:
-      insecure: true
+    endpoint: http://jaeger-collector:14268/api/traces
 
   # Debug exporter for logs
   debug:
