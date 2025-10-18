@@ -5,16 +5,17 @@ Uma stack simplificada de observabilidade usando Docker Compose com OpenTelemetr
 ## 🏗️ Arquitetura
 
 ```
-Applications → OpenTelemetry Collector → Traces → Jaeger All-in-One
-                    (OTLP)                    ↓
-                                         Metrics → Prometheus
+Applications → OpenTelemetry Collector → Traces  → Jaeger All-in-One
+                    (OTLP)                Metrics → Prometheus
+                                          Logs    → Loki
 ```
 
-### Por que três serviços?
+### Por que quatro serviços?
 
 - **OpenTelemetry Collector**: Coletor universal que recebe dados via OTLP de diferentes aplicações e protocolos
 - **Jaeger All-in-One**: Sistema completo de tracing distribuído com interface web para visualização
 - **Prometheus**: Sistema de monitoramento e armazenamento de métricas em séries temporais
+- **Loki**: Sistema de agregação e armazenamento de logs com interface de consulta
 
 ## 📋 Pré-requisitos
 
@@ -43,7 +44,8 @@ docker-compose ps
 |---------|-----|-----------|
 | **Jaeger UI** | http://localhost:16686 | Interface web para visualização de traces |
 | **Prometheus** | http://localhost:9090 | Interface web para visualização de métricas |
-| **OTLP gRPC** | localhost:4317 | Endpoint para envio de traces e métricas via OTLP gRPC |
+| **Loki** | http://localhost:3100 | API para consulta de logs |
+| **OTLP gRPC** | localhost:4317 | Endpoint para envio de traces, métricas e logs via OTLP gRPC |
 
 ### 3. Enviar Dados de Teste
 
@@ -104,6 +106,7 @@ using OpenTelemetry;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using OpenTelemetry.Metrics;
+using OpenTelemetry.Logs;
 using System.Diagnostics;
 
 // Configurar o OpenTelemetry
@@ -128,9 +131,24 @@ using var meterProvider = Sdk.CreateMeterProviderBuilder()
     })
     .Build();
 
-// Criar um ActivitySource e Meter
+// Configurar logs
+using var loggerFactory = LoggerFactory.Create(builder =>
+{
+    builder.AddOpenTelemetry(options =>
+    {
+        options.SetResourceBuilder(ResourceBuilder.CreateDefault()
+            .AddService(serviceName: "test-service", serviceVersion: "1.0.0"));
+        options.AddOtlpExporter(otlpOptions =>
+        {
+            otlpOptions.Endpoint = new Uri("http://localhost:4317");
+        });
+    });
+});
+
+// Criar um ActivitySource, Meter e Logger
 using var activitySource = new ActivitySource("MyApplication");
 using var meter = new Meter("MyApplication");
+var logger = loggerFactory.CreateLogger("MyApplication");
 
 // Criar contadores de métricas
 var requestCounter = meter.CreateCounter<int>("requests_total", "Total number of requests");
@@ -152,6 +170,10 @@ stopwatch.Stop();
 requestCounter.Add(1, new KeyValuePair<string, object?>("method", "GET"));
 responseTimeHistogram.Record(stopwatch.Elapsed.TotalSeconds);
 
+// Registrar logs
+logger.LogInformation("Operation completed successfully. TraceId: {TraceId}, Duration: {Duration}ms", 
+    activity?.TraceId, stopwatch.ElapsedMilliseconds);
+
 Console.WriteLine($"Trace ID: {activity?.TraceId}");
 Console.WriteLine($"Span ID: {activity?.SpanId}");
 Console.WriteLine($"Response time: {stopwatch.ElapsedMilliseconds}ms");
@@ -163,6 +185,7 @@ Console.WriteLine($"Response time: {stopwatch.ElapsedMilliseconds}ms");
 <PackageReference Include="OpenTelemetry" Version="1.7.0" />
 <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.7.0" />
 <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.7.0" />
+<PackageReference Include="OpenTelemetry.Logs" Version="1.7.0" />
 <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="8.0.0" />
 ```
 
@@ -191,6 +214,12 @@ docker-compose down -v
 - **Alerts**: Configuração e visualização de alertas
 - **Status**: Informações sobre configuração e armazenamento
 
+### Loki API
+- **Query**: Consulta de logs usando LogQL
+- **Labels**: Lista de labels disponíveis
+- **Series**: Consulta de séries de logs
+- **Stats**: Estatísticas de consultas
+
 ### Exemplos de Queries PromQL
 ```promql
 # Taxa de requisições por segundo
@@ -206,14 +235,33 @@ sum by (method) (requests_total)
 rate(otelcol_processor_batch_batch_send_size_sum[5m])
 ```
 
+### Exemplos de Queries LogQL
+```logql
+# Todos os logs de um serviço
+{service_name="test-service"}
+
+# Logs de erro de um serviço
+{service_name="test-service"} |= "ERROR"
+
+# Logs com TraceID específico
+{service_name="test-service"} |= "TraceId=1234567890"
+
+# Contagem de logs por nível
+sum by (level) (count_over_time({service_name="test-service"}[5m]))
+
+# Logs de uma operação específica
+{service_name="test-service", operation="test-operation"}
+```
+
 ## 🔧 Configuração
 
 ### OpenTelemetry Collector
 
 O collector está configurado para:
-- **Receber dados via OTLP gRPC**: porta 4317 (traces e métricas)
+- **Receber dados via OTLP gRPC**: porta 4317 (traces, métricas e logs)
 - **Exportar traces para Jaeger**: via OTLP para jaeger:4317
 - **Exportar métricas para Prometheus**: porta 8889
+- **Exportar logs para Loki**: via HTTP para loki:3100
 
 ### Jaeger All-in-One
 
@@ -230,6 +278,15 @@ Configurado com:
 - **UI**: Interface web na porta 9090
 - **Scraping**: OpenTelemetry Collector (porta 8889) e auto-monitoramento
 
+### Loki
+
+Configurado com:
+- **Storage**: Volume persistente com TSDB (dados mantidos entre reinicializações)
+- **Retention**: 7 dias (consistente com Prometheus)
+- **API**: HTTP na porta 3100
+- **Schema**: v13 com TSDB para melhor performance
+- **Rate Limiting**: Configurado para desenvolvimento
+
 ## 🐛 Troubleshooting
 
 ### Verificar Logs dos Serviços
@@ -242,6 +299,7 @@ docker-compose logs
 docker-compose logs otel-collector
 docker-compose logs jaeger
 docker-compose logs prometheus
+docker-compose logs loki
 ```
 
 ### Verificar Status dos Serviços
@@ -262,6 +320,7 @@ docker-compose ps --format "table {{.Name}}\t{{.Status}}"
    netstat -tulpn | grep :16686
    netstat -tulpn | grep :4317
    netstat -tulpn | grep :9090
+   netstat -tulpn | grep :3100
    
    # Parar serviço conflitante ou alterar porta no docker-compose.yml
    ```
@@ -284,7 +343,19 @@ docker-compose ps --format "table {{.Name}}\t{{.Status}}"
    docker-compose logs prometheus
    ```
 
-4. **Falta de memória**:
+4. **Loki não recebe logs**:
+   ```bash
+   # Verificar se o collector está enviando logs
+   docker-compose logs otel-collector | grep loki
+   
+   # Verificar logs do Loki
+   docker-compose logs loki
+   
+   # Testar API do Loki
+   curl "http://localhost:3100/loki/api/v1/labels"
+   ```
+
+5. **Falta de memória**:
    ```bash
    # Verificar uso de memória
    docker stats
@@ -292,7 +363,7 @@ docker-compose ps --format "table {{.Name}}\t{{.Status}}"
    # Ajustar limites no docker-compose.yml se necessário
    ```
 
-5. **Traces não aparecem na UI**:
+6. **Traces não aparecem na UI**:
    - Verificar se os dados estão sendo enviados corretamente
    - Verificar logs: `docker-compose logs jaeger`
    - Reiniciar serviços: `docker-compose restart`
@@ -317,7 +388,8 @@ Telemetry/
 ├── docker-compose.yml              # Orquestração dos serviços
 ├── config/
 │   ├── otel-collector.yaml         # Configuração do OpenTelemetry Collector
-│   └── prometheus.yml              # Configuração do Prometheus
+│   ├── prometheus.yml              # Configuração do Prometheus
+│   └── loki.yml                    # Configuração do Loki
 └── README.md                       # Este arquivo
 ```
 
@@ -326,6 +398,7 @@ Telemetry/
 - [OpenTelemetry Documentation](https://opentelemetry.io/docs/)
 - [Jaeger Documentation](https://www.jaegertracing.io/docs/)
 - [Prometheus Documentation](https://prometheus.io/docs/)
+- [Loki Documentation](https://grafana.com/docs/loki/)
 - [OTLP Protocol](https://opentelemetry.io/docs/specs/otlp/)
 
 ## 📝 Notas
@@ -334,6 +407,7 @@ Telemetry/
 - Para produção, considere usar storage persistente (Elasticsearch/Cassandra) para o Jaeger
 - Traces são armazenados em memória e são perdidos ao reiniciar os containers
 - Métricas são armazenadas persistentemente no Prometheus (7 dias de retenção)
+- Logs são armazenados persistentemente no Loki (7 dias de retenção)
 - Use SDKs OpenTelemetry para integração com suas aplicações
 
 ## 🤝 Contribuição

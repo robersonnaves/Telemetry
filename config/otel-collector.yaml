@@ -14,6 +14,19 @@ exporters:
   # Métricas para Prometheus
   prometheus:
     endpoint: 0.0.0.0:8889
+  
+  # Logs para Loki
+  loki:
+    endpoint: http://loki:3100/loki/api/v1/push
+    labels:
+      attributes:
+        service.name: "service_name"
+        service.version: "service_version"
+        deployment.environment: "deployment_environment"
+      resource:
+        service.name: "service_name"
+        service.version: "service_version"
+        deployment.environment: "deployment_environment"
 
 service:
   pipelines:
@@ -26,3 +39,8 @@ service:
     metrics:
       receivers: [otlp]
       exporters: [prometheus]
+    
+    # Pipeline de logs
+    logs:
+      receivers: [otlp]
+      exporters: [loki]
