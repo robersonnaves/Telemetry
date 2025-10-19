@@ -39,7 +39,7 @@ datasources:
     editable: true
     jsonData:
       tracesToLogs:
-        datasourceUid: loki
+        datasourceUid: Loki
         tags: ['job', 'instance', 'pod', 'namespace']
         mappedTags: [{ key: 'service.name', value: 'service' }]
         mapTagNamesEnabled: false
