@@ -82,6 +82,10 @@ services:
       - /sys:/sys:ro
       - /var/lib/containers:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
+    environment:
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - CONTAINER_RUNTIME=docker
+      - CONTAINER_RUNTIME_ENDPOINT=unix:///var/run/docker.sock
     networks:
       - telemetry
 
