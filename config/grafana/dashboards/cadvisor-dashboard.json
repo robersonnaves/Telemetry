@@ -17,7 +17,7 @@
   },
   "editable": true,
   "fiscalYearStartMonth": 0,
-  "graphTooltip": 0,
+  "graphTooltip": 1,
   "id": null,
   "links": [],
   "liveNow": false,
@@ -32,7 +32,7 @@
       },
       "id": 1,
       "panels": [],
-      "title": "Visão Geral",
+      "title": "📈 Visão Geral",
       "type": "row"
     },
     {
@@ -50,7 +50,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#299c46",
                 "value": null
               }
             ]
@@ -94,7 +94,7 @@
           "refId": "A"
         }
       ],
-      "title": "Total de Containers",
+      "title": "📊 Total de Containers",
       "type": "stat"
     },
     {
@@ -114,15 +114,15 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#299c46",
                 "value": null
               },
               {
-                "color": "yellow",
+                "color": "#e24d42",
                 "value": 70
               },
               {
-                "color": "red",
+                "color": "#d44a3a",
                 "value": 85
               }
             ]
@@ -166,7 +166,7 @@
           "refId": "A"
         }
       ],
-      "title": "CPU Total Usado",
+      "title": "⚡ CPU Total Usado",
       "type": "stat"
     },
     {
@@ -184,15 +184,15 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#299c46",
                 "value": null
               },
               {
-                "color": "yellow",
+                "color": "#e24d42",
                 "value": 80
               },
               {
-                "color": "red",
+                "color": "#d44a3a",
                 "value": 90
               }
             ]
@@ -236,7 +236,7 @@
           "refId": "A"
         }
       ],
-      "title": "Memória Total Usada",
+      "title": "🧠 Memória Total Usada",
       "type": "stat"
     },
     {
@@ -247,14 +247,15 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "palette-classic",
+            "fixedColor": "green"
           },
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 20,
+            "fillOpacity": 30,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -262,7 +263,7 @@
               "vis": false
             },
             "lineInterpolation": "linear",
-            "lineWidth": 1,
+            "lineWidth": 2,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
@@ -282,7 +283,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#299c46",
                 "value": null
               }
             ]
@@ -331,7 +332,7 @@
           "refId": "B"
         }
       ],
-      "title": "Network I/O Total",
+      "title": "🌐 Network I/O Total",
       "type": "timeseries"
     },
     {
@@ -344,7 +345,7 @@
       },
       "id": 6,
       "panels": [],
-      "title": "CPU por Container",
+      "title": "⚡ CPU por Container",
       "type": "row"
     },
     {
@@ -355,14 +356,15 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "palette-classic",
+            "fixedColor": "green"
           },
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 20,
+            "fillOpacity": 30,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -370,7 +372,7 @@
               "vis": false
             },
             "lineInterpolation": "linear",
-            "lineWidth": 1,
+            "lineWidth": 2,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
@@ -390,7 +392,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#299c46",
                 "value": null
               }
             ]
@@ -429,7 +431,7 @@
           "refId": "A"
         }
       ],
-      "title": "Uso de CPU por Container",
+      "title": "📊 Uso de CPU por Container",
       "type": "timeseries"
     },
     {
@@ -440,7 +442,8 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "palette-classic",
+            "fixedColor": "green"
           },
           "custom": {
             "displayMode": "gradient",
@@ -451,7 +454,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#299c46",
                 "value": null
               }
             ]
@@ -492,7 +495,7 @@
           "refId": "A"
         }
       ],
-      "title": "Top 5 Containers por CPU",
+      "title": "🏆 Top 5 Containers por CPU",
       "type": "bargauge"
     },
     {
@@ -505,7 +508,7 @@
       },
       "id": 9,
       "panels": [],
-      "title": "Memória por Container",
+      "title": "🧠 Memória por Container",
       "type": "row"
     },
     {
@@ -516,14 +519,15 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "palette-classic",
+            "fixedColor": "green"
           },
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 20,
+            "fillOpacity": 30,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -531,7 +535,7 @@
               "vis": false
             },
             "lineInterpolation": "linear",
-            "lineWidth": 1,
+            "lineWidth": 2,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
@@ -551,7 +555,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#299c46",
                 "value": null
               }
             ]
@@ -600,7 +604,7 @@
           "refId": "B"
         }
       ],
-      "title": "Uso de Memória por Container",
+      "title": "📊 Uso de Memória por Container",
       "type": "timeseries"
     },
     {
@@ -620,15 +624,15 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#299c46",
                 "value": null
               },
               {
-                "color": "yellow",
+                "color": "#e24d42",
                 "value": 70
               },
               {
-                "color": "red",
+                "color": "#d44a3a",
                 "value": 85
               }
             ]
@@ -669,7 +673,7 @@
           "refId": "A"
         }
       ],
-      "title": "Memory Usage vs Limit",
+      "title": "📈 Memory Usage vs Limit",
       "type": "gauge"
     },
     {
@@ -692,7 +696,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#299c46",
                 "value": null
               }
             ]
@@ -765,7 +769,7 @@
           "refId": "C"
         }
       ],
-      "title": "Top 5 Containers por Memória",
+      "title": "🏆 Top 5 Containers por Memória",
       "transformations": [
         {
           "id": "organize",
@@ -804,7 +808,7 @@
       },
       "id": 13,
       "panels": [],
-      "title": "Rede",
+      "title": "🌐 Rede",
       "type": "row"
     },
     {
@@ -815,14 +819,15 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "palette-classic",
+            "fixedColor": "green"
           },
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 20,
+            "fillOpacity": 30,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -830,7 +835,7 @@
               "vis": false
             },
             "lineInterpolation": "linear",
-            "lineWidth": 1,
+            "lineWidth": 2,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
@@ -850,7 +855,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#299c46",
                 "value": null
               }
             ]
@@ -889,7 +894,7 @@
           "refId": "A"
         }
       ],
-      "title": "Network Traffic - Receive",
+      "title": "📥 Network Traffic - Receive",
       "type": "timeseries"
     },
     {
@@ -900,14 +905,15 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "palette-classic",
+            "fixedColor": "green"
           },
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 20,
+            "fillOpacity": 30,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -915,7 +921,7 @@
               "vis": false
             },
             "lineInterpolation": "linear",
-            "lineWidth": 1,
+            "lineWidth": 2,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
@@ -935,7 +941,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#299c46",
                 "value": null
               }
             ]
@@ -974,7 +980,7 @@
           "refId": "A"
         }
       ],
-      "title": "Network Traffic - Transmit",
+      "title": "📤 Network Traffic - Transmit",
       "type": "timeseries"
     },
     {
@@ -985,14 +991,15 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "palette-classic",
+            "fixedColor": "green"
           },
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 20,
+            "fillOpacity": 30,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -1000,7 +1007,7 @@
               "vis": false
             },
             "lineInterpolation": "linear",
-            "lineWidth": 1,
+            "lineWidth": 2,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
@@ -1020,7 +1027,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#299c46",
                 "value": null
               }
             ]
@@ -1069,7 +1076,7 @@
           "refId": "B"
         }
       ],
-      "title": "Network Errors",
+      "title": "⚠️ Network Errors",
       "type": "timeseries"
     },
     {
@@ -1082,7 +1089,7 @@
       },
       "id": 17,
       "panels": [],
-      "title": "Disco e Filesystem",
+      "title": "💾 Disco e Filesystem",
       "type": "row"
     },
     {
@@ -1093,14 +1100,15 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "palette-classic",
+            "fixedColor": "green"
           },
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 20,
+            "fillOpacity": 30,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -1108,7 +1116,7 @@
               "vis": false
             },
             "lineInterpolation": "linear",
-            "lineWidth": 1,
+            "lineWidth": 2,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
@@ -1128,7 +1136,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#299c46",
                 "value": null
               }
             ]
@@ -1167,7 +1175,7 @@
           "refId": "A"
         }
       ],
-      "title": "Filesystem Usage",
+      "title": "📊 Filesystem Usage",
       "type": "timeseries"
     },
     {
@@ -1178,7 +1186,8 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "palette-classic",
+            "fixedColor": "green"
           },
           "custom": {
             "displayMode": "gradient",
@@ -1191,15 +1200,15 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#299c46",
                 "value": null
               },
               {
-                "color": "yellow",
+                "color": "#e24d42",
                 "value": 75
               },
               {
-                "color": "red",
+                "color": "#d44a3a",
                 "value": 90
               }
             ]
@@ -1240,7 +1249,7 @@
           "refId": "A"
         }
       ],
-      "title": "Filesystem Usage Percentage",
+      "title": "📈 Filesystem Usage Percentage",
       "type": "bargauge"
     },
     {
@@ -1251,14 +1260,15 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "palette-classic",
+            "fixedColor": "green"
           },
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 20,
+            "fillOpacity": 30,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -1266,7 +1276,7 @@
               "vis": false
             },
             "lineInterpolation": "linear",
-            "lineWidth": 1,
+            "lineWidth": 2,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
@@ -1286,7 +1296,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#299c46",
                 "value": null
               }
             ]
@@ -1335,7 +1345,7 @@
           "refId": "B"
         }
       ],
-      "title": "Disk I/O",
+      "title": "💾 Disk I/O",
       "type": "timeseries"
     }
   ],
@@ -1348,6 +1358,7 @@
     "cadvisor",
     "monitoring"
   ],
+  "description": "Dashboard abrangente para monitoramento de containers usando cAdvisor. Inclui métricas de CPU, memória, rede, disco e filesystem com filtros dinâmicos e alertas visuais.",
   "templating": {
     "list": [
       {
@@ -1423,7 +1434,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Monitoramento de Containers - cAdvisor",
+  "title": "🐳 Monitoramento de Containers - cAdvisor",
   "uid": "cadvisor-dashboard",
   "version": 1,
   "weekStart": ""
