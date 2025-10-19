@@ -69,6 +69,22 @@ services:
     networks:
       - telemetry
 
+  cadvisor:
+    container_name: telemetry-cadvisor
+    image: gcr.io/cadvisor/cadvisor:latest
+    restart: unless-stopped
+    privileged: true
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run/podman/podman.sock:/var/run/docker.sock:ro
+      - /sys:/sys:ro
+      - /var/lib/containers:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    networks:
+      - telemetry
+
 volumes:
   prometheus-data:
   loki-data:

@@ -25,3 +25,10 @@ scrape_configs:
       - targets: ['rcheck-api:5001']
     scrape_interval: 15s
     metrics_path: /api/debug/metrics
+
+  # cAdvisor - métricas de containers
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+    scrape_interval: 15s
+    metrics_path: /metrics
