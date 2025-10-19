@@ -26,7 +26,7 @@ datasources:
     jsonData:
       maxLines: 1000
       derivedFields:
-        - datasourceUid: prometheus
+        - datasourceUid: Prometheus
           matcherRegex: "traceID=(\\w+)"
           name: TraceID
           url: "$${__value.raw}"
@@ -48,12 +48,12 @@ datasources:
         filterByTraceID: false
         filterBySpanID: false
       tracesToMetrics:
-        datasourceUid: prometheus
+        datasourceUid: Prometheus
         tags: [{ key: 'service.name', value: 'service' }, { key: 'job' }]
         queries:
           - name: 'Sample query'
             query: 'sum(rate(traces_spanmetrics_latency_bucket{$$__tags}[5m]))'
       serviceMap:
-        datasourceUid: prometheus
+        datasourceUid: Prometheus
       nodeGraph:
         enabled: true
