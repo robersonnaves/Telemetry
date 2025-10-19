@@ -78,7 +78,6 @@ services:
       - "8080:8080"
     volumes:
       - /:/rootfs:ro
-      - /var/run/podman/podman.sock:/var/run/docker.sock:ro
       - /sys:/sys:ro
       - /var/lib/containers:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
@@ -86,6 +85,8 @@ services:
       - DOCKER_HOST=unix:///var/run/docker.sock
       - CONTAINER_RUNTIME=docker
       - CONTAINER_RUNTIME_ENDPOINT=unix:///var/run/docker.sock
+      - ENABLE_DOCKER_METRICS=true
+      - ENABLE_PODMAN_METRICS=false
     networks:
       - telemetry
 
