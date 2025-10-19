@@ -78,9 +78,11 @@ services:
       - "8080:8080"
     volumes:
       - /:/rootfs:ro
+      - /var/run:/var/run:rw
       - /sys:/sys:ro
-      - /var/lib/containers:/var/lib/docker:ro
-      - /dev/disk/:/dev/disk:ro
+      - /var/lib/containers:/var/lib/containers:ro # For Podman container information
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro # For cgroup information
+      - /dev/disk/:/dev/disk:ro # For disk I/O metrics
     command:
       - --podman=unix:///run/podman/podman.sock # Explicitly specify Podman socket
       - --docker=unix:// # To avoid issues with podman-docker package if installed
