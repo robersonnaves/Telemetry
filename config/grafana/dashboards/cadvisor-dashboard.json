@@ -81,14 +81,14 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "9.0.0",
+      "pluginVersion": "12.2.0",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "Prometheus"
           },
-          "expr": "count(container_last_seen{name=~\"$container\"})",
+          "expr": "count(count by(name) (container_cpu_usage_seconds_total{name=~\"^telemetry-.*\"}))",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
