@@ -15,12 +15,12 @@
       }
     ]
   },
+  "description": "Dashboard abrangente para monitoramento de containers usando cAdvisor. Inclui métricas de CPU, memória, rede, disco e filesystem com filtros dinâmicos e alertas visuais.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": null,
+  "id": 1,
   "links": [],
-  "liveNow": false,
   "panels": [
     {
       "collapsed": false,
@@ -51,7 +51,7 @@
             "steps": [
               {
                 "color": "#299c46",
-                "value": null
+                "value": 0
               }
             ]
           },
@@ -71,6 +71,7 @@
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -78,6 +79,7 @@
           "fields": "",
           "values": false
         },
+        "showPercentChange": false,
         "textMode": "auto",
         "wideLayout": true
       },
@@ -115,7 +117,7 @@
             "steps": [
               {
                 "color": "#299c46",
-                "value": null
+                "value": 0
               },
               {
                 "color": "#e24d42",
@@ -143,6 +145,7 @@
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -150,10 +153,11 @@
           "fields": "",
           "values": false
         },
+        "showPercentChange": false,
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "9.0.0",
+      "pluginVersion": "12.2.0",
       "targets": [
         {
           "datasource": {
@@ -185,7 +189,7 @@
             "steps": [
               {
                 "color": "#299c46",
-                "value": null
+                "value": 0
               },
               {
                 "color": "#e24d42",
@@ -213,6 +217,7 @@
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -220,10 +225,11 @@
           "fields": "",
           "values": false
         },
+        "showPercentChange": false,
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "9.0.0",
+      "pluginVersion": "12.2.0",
       "targets": [
         {
           "datasource": {
@@ -247,21 +253,27 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic",
-            "fixedColor": "green"
+            "fixedColor": "green",
+            "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 30,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
-              "vis": false
+              "vis": false,
+              "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 2,
             "pointSize": 5,
@@ -269,6 +281,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -284,7 +297,7 @@
             "steps": [
               {
                 "color": "#299c46",
-                "value": null
+                "value": 0
               }
             ]
           },
@@ -303,13 +316,16 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "12.2.0",
       "targets": [
         {
           "datasource": {
@@ -356,21 +372,27 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic",
-            "fixedColor": "green"
+            "fixedColor": "green",
+            "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 30,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
-              "vis": false
+              "vis": false,
+              "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 2,
             "pointSize": 5,
@@ -378,6 +400,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -393,7 +416,7 @@
             "steps": [
               {
                 "color": "#299c46",
-                "value": null
+                "value": 0
               }
             ]
           },
@@ -412,22 +435,30 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "12.2.0",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "Prometheus"
           },
-          "expr": "rate(container_cpu_usage_seconds_total{name=~\"$container\"}[$interval]) * 100",
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "rate(container_cpu_usage_seconds_total{name=~\"^telemetry-.*\"}[$interval]) * 100",
+          "format": "time_series",
+          "instant": false,
           "interval": "",
-          "legendFormat": "{{name}}",
+          "legendFormat": "{{container_label_com_docker_compose_service}}",
+          "range": true,
           "refId": "A"
         }
       ],
@@ -441,25 +472,24 @@
       },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "palette-classic",
-            "fixedColor": "green"
-          },
-          "custom": {
-            "displayMode": "gradient",
-            "orientation": "horizontal"
-          },
           "mappings": [],
           "thresholds": {
-            "mode": "absolute",
+            "mode": "percentage",
             "steps": [
               {
-                "color": "#299c46",
-                "value": null
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 85
               }
             ]
-          },
-          "unit": "percent"
+          }
         },
         "overrides": []
       },
@@ -471,8 +501,9 @@
       },
       "id": 8,
       "options": {
-        "displayMode": "gradient",
-        "orientation": "horizontal",
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -480,23 +511,29 @@
           "fields": "",
           "values": false
         },
-        "showUnfilled": true
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
       },
-      "pluginVersion": "9.0.0",
+      "pluginVersion": "12.2.0",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "Prometheus"
           },
-          "expr": "topk(5, rate(container_cpu_usage_seconds_total{name=~\"$container\"}[5m]) * 100)",
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum by (container_label_com_docker_compose_service) (rate(container_cpu_usage_seconds_total{name=~\"^telemetry-.*\"}[5m]) * 100)",
           "interval": "",
           "legendFormat": "{{name}}",
+          "range": true,
           "refId": "A"
         }
       ],
-      "title": "🏆 Top 5 Containers por CPU",
-      "type": "bargauge"
+      "title": "🏆 Containers por CPU",
+      "transparent": true,
+      "type": "gauge"
     },
     {
       "collapsed": false,
@@ -519,21 +556,27 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic",
-            "fixedColor": "green"
+            "fixedColor": "green",
+            "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 30,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
-              "vis": false
+              "vis": false,
+              "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 2,
             "pointSize": 5,
@@ -541,6 +584,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -556,7 +600,7 @@
             "steps": [
               {
                 "color": "#299c46",
-                "value": null
+                "value": 0
               }
             ]
           },
@@ -575,22 +619,28 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "12.2.0",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "Prometheus"
           },
-          "expr": "container_memory_working_set_bytes{name=~\"$container\"} / 1024 / 1024",
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "container_memory_working_set_bytes{name=~\"^telemetry-.*\"} / 1024 / 1024",
           "interval": "",
-          "legendFormat": "{{name}} - Working Set",
+          "legendFormat": "{{container_label_com_docker_compose_service}} - Working Set",
+          "range": true,
           "refId": "A"
         },
         {
@@ -598,13 +648,17 @@
             "type": "prometheus",
             "uid": "Prometheus"
           },
-          "expr": "container_spec_memory_limit_bytes{name=~\"$container\"} / 1024 / 1024",
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "container_spec_memory_limit_bytes{name=~\"^telemetry-.*\"} / 1024 / 1024",
           "interval": "",
-          "legendFormat": "{{name}} - Limit",
+          "legendFormat": "{{container_label_com_docker_compose_service}} - Limit",
+          "range": true,
           "refId": "B"
         }
       ],
       "title": "📊 Uso de Memória por Container",
+      "transparent": true,
       "type": "timeseries"
     },
     {
@@ -625,7 +679,7 @@
             "steps": [
               {
                 "color": "#299c46",
-                "value": null
+                "value": 0
               },
               {
                 "color": "#e24d42",
@@ -649,6 +703,8 @@
       },
       "id": 11,
       "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
@@ -658,9 +714,10 @@
           "values": false
         },
         "showThresholdLabels": false,
-        "showThresholdMarkers": true
+        "showThresholdMarkers": true,
+        "sizing": "auto"
       },
-      "pluginVersion": "9.0.0",
+      "pluginVersion": "12.2.0",
       "targets": [
         {
           "datasource": {
@@ -684,24 +741,22 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "align": "auto",
-            "displayMode": "auto",
-            "inspect": false
+            "mode": "continuous-GrYlRd"
           },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "#299c46",
-                "value": null
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
               }
             ]
-          },
-          "unit": "MiB"
+          }
         },
         "overrides": []
       },
@@ -713,35 +768,40 @@
       },
       "id": 12,
       "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
+        "displayMode": "lcd",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
         },
-        "showHeader": true,
-        "sortBy": [
-          {
-            "desc": true,
-            "displayName": "Memory (MiB)"
-          }
-        ]
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "vertical",
+        "reduceOptions": {
+          "calcs": [],
+          "fields": "",
+          "values": true
+        },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "color"
       },
-      "pluginVersion": "9.0.0",
+      "pluginVersion": "12.2.0",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "Prometheus"
           },
-          "expr": "container_memory_working_set_bytes{name=~\"$container\"} / 1024 / 1024",
+          "editorMode": "code",
+          "expr": "container_memory_usage_bytes{name=~\"^telemetry-.*\"} / 1024 / 1024",
           "format": "table",
           "instant": true,
           "interval": "",
-          "legendFormat": "Memory",
+          "legendFormat": "Usage Bytes",
           "refId": "A"
         },
         {
@@ -749,7 +809,8 @@
             "type": "prometheus",
             "uid": "Prometheus"
           },
-          "expr": "container_memory_cache{name=~\"$container\"} / 1024 / 1024",
+          "editorMode": "code",
+          "expr": "container_memory_cache{name=~\"^telemetry-.*\"} / 1024 / 1024",
           "format": "table",
           "instant": true,
           "interval": "",
@@ -761,7 +822,8 @@
             "type": "prometheus",
             "uid": "Prometheus"
           },
-          "expr": "container_memory_rss{name=~\"$container\"} / 1024 / 1024",
+          "editorMode": "code",
+          "expr": "container_memory_rss{name=~\"^telemetry-.*\"} / 1024 / 1024",
           "format": "table",
           "instant": true,
           "interval": "",
@@ -772,31 +834,84 @@
       "title": "🏆 Top 5 Containers por Memória",
       "transformations": [
         {
-          "id": "organize",
+          "id": "joinByField",
           "options": {
-            "excludeByName": {
-              "Time": true,
-              "__name__": true,
-              "Time__1": true,
-              "Time__2": true
+            "byField": "container_label_com_docker_compose_service",
+            "mode": "outer"
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "binary": {
+              "left": {
+                "fixed": ""
+              },
+              "right": {
+                "fixed": ""
+              }
             },
-            "indexByName": {},
-            "renameByName": {
-              "Value": "Memory (MiB)",
-              "Value__1": "Cache (MiB)",
-              "Value__2": "RSS (MiB)",
-              "name": "Container Name"
+            "mode": "reduceRow",
+            "reduce": {
+              "include": [
+                "Value #A",
+                "Value #B",
+                "Value #C"
+              ],
+              "reducer": "sum"
+            },
+            "replaceFields": false,
+            "window": {
+              "reducer": "mean",
+              "windowAlignment": "trailing",
+              "windowSize": 0.1,
+              "windowSizeMode": "percentage"
             }
           }
         },
         {
-          "id": "limit",
+          "id": "groupBy",
           "options": {
-            "limit": 5
+            "fields": {
+              "Total": {
+                "aggregations": [
+                  "sum"
+                ],
+                "operation": "aggregate"
+              },
+              "container_label_com_docker_compose_service": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "groupby"
+              },
+              "container_label_com_docker_compose_service 1": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "container_label_com_docker_compose_service 2": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "container_label_com_docker_compose_service 3": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "name": {
+                "aggregations": []
+              }
+            }
           }
         }
       ],
-      "type": "table"
+      "transparent": true,
+      "type": "bargauge"
     },
     {
       "collapsed": false,
@@ -819,21 +934,27 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic",
-            "fixedColor": "green"
+            "fixedColor": "green",
+            "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 30,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
-              "vis": false
+              "vis": false,
+              "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 2,
             "pointSize": 5,
@@ -841,6 +962,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -856,7 +978,7 @@
             "steps": [
               {
                 "color": "#299c46",
-                "value": null
+                "value": 0
               }
             ]
           },
@@ -875,13 +997,16 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "12.2.0",
       "targets": [
         {
           "datasource": {
@@ -905,21 +1030,27 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic",
-            "fixedColor": "green"
+            "fixedColor": "green",
+            "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 30,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
-              "vis": false
+              "vis": false,
+              "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 2,
             "pointSize": 5,
@@ -927,6 +1058,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -942,7 +1074,7 @@
             "steps": [
               {
                 "color": "#299c46",
-                "value": null
+                "value": 0
               }
             ]
           },
@@ -961,22 +1093,27 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "12.2.0",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "Prometheus"
           },
-          "expr": "rate(container_network_transmit_bytes_total{name=~\"$container\"}[$interval])",
+          "editorMode": "code",
+          "expr": "rate(container_network_transmit_bytes_total{name=~\"^telemetry-.*\"}[$interval])",
           "interval": "",
-          "legendFormat": "{{name}} - {{interface}}",
+          "legendFormat": "{{container_label_com_docker_compose_service}} - {{interface}}",
+          "range": true,
           "refId": "A"
         }
       ],
@@ -991,21 +1128,27 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic",
-            "fixedColor": "green"
+            "fixedColor": "green",
+            "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 30,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
-              "vis": false
+              "vis": false,
+              "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 2,
             "pointSize": 5,
@@ -1013,6 +1156,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -1028,7 +1172,7 @@
             "steps": [
               {
                 "color": "#299c46",
-                "value": null
+                "value": 0
               }
             ]
           },
@@ -1047,22 +1191,27 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "12.2.0",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "Prometheus"
           },
+          "editorMode": "code",
           "expr": "rate(container_network_receive_errors_total{name=~\"$container\"}[$interval])",
           "interval": "",
-          "legendFormat": "{{name}} - RX Errors",
+          "legendFormat": "{{container_label_com_docker_compose_service}} - RX Errors",
+          "range": true,
           "refId": "A"
         },
         {
@@ -1070,9 +1219,11 @@
             "type": "prometheus",
             "uid": "Prometheus"
           },
+          "editorMode": "code",
           "expr": "rate(container_network_transmit_errors_total{name=~\"$container\"}[$interval])",
           "interval": "",
-          "legendFormat": "{{name}} - TX Errors",
+          "legendFormat": "{{container_label_com_docker_compose_service}} - TX Errors",
+          "range": true,
           "refId": "B"
         }
       ],
@@ -1100,21 +1251,27 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic",
-            "fixedColor": "green"
+            "fixedColor": "green",
+            "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 30,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
-              "vis": false
+              "vis": false,
+              "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 2,
             "pointSize": 5,
@@ -1122,6 +1279,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -1137,7 +1295,7 @@
             "steps": [
               {
                 "color": "#299c46",
-                "value": null
+                "value": 0
               }
             ]
           },
@@ -1156,13 +1314,16 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "12.2.0",
       "targets": [
         {
           "datasource": {
@@ -1186,12 +1347,8 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic",
-            "fixedColor": "green"
-          },
-          "custom": {
-            "displayMode": "gradient",
-            "orientation": "horizontal"
+            "fixedColor": "green",
+            "mode": "palette-classic"
           },
           "mappings": [],
           "max": 100,
@@ -1201,7 +1358,7 @@
             "steps": [
               {
                 "color": "#299c46",
-                "value": null
+                "value": 0
               },
               {
                 "color": "#e24d42",
@@ -1226,6 +1383,16 @@
       "id": 19,
       "options": {
         "displayMode": "gradient",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
@@ -1234,9 +1401,11 @@
           "fields": "",
           "values": false
         },
-        "showUnfilled": true
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "color"
       },
-      "pluginVersion": "9.0.0",
+      "pluginVersion": "12.2.0",
       "targets": [
         {
           "datasource": {
@@ -1260,21 +1429,27 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic",
-            "fixedColor": "green"
+            "fixedColor": "green",
+            "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 30,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
-              "vis": false
+              "vis": false,
+              "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 2,
             "pointSize": 5,
@@ -1282,6 +1457,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -1297,7 +1473,7 @@
             "steps": [
               {
                 "color": "#299c46",
-                "value": null
+                "value": 0
               }
             ]
           },
@@ -1316,22 +1492,27 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "12.2.0",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "Prometheus"
           },
+          "editorMode": "code",
           "expr": "rate(container_fs_reads_bytes_total{name=~\"$container\"}[$interval])",
           "interval": "",
-          "legendFormat": "{{name}} - Read",
+          "legendFormat": "{{container_label_com_docker_compose_service}} - Read",
+          "range": true,
           "refId": "A"
         },
         {
@@ -1339,9 +1520,11 @@
             "type": "prometheus",
             "uid": "Prometheus"
           },
+          "editorMode": "code",
           "expr": "rate(container_fs_writes_bytes_total{name=~\"$container\"}[$interval])",
           "interval": "",
-          "legendFormat": "{{name}} - Write",
+          "legendFormat": "{{container_label_com_docker_compose_service}} - Write",
+          "range": true,
           "refId": "B"
         }
       ],
@@ -1349,21 +1532,19 @@
       "type": "timeseries"
     }
   ],
+  "preload": false,
   "refresh": "15s",
-  "schemaVersion": 36,
-  "style": "dark",
+  "schemaVersion": 42,
   "tags": [
     "containers",
     "podman",
     "cadvisor",
     "monitoring"
   ],
-  "description": "Dashboard abrangente para monitoramento de containers usando cAdvisor. Inclui métricas de CPU, memória, rede, disco e filesystem com filtros dinâmicos e alertas visuais.",
   "templating": {
     "list": [
       {
         "current": {
-          "selected": false,
           "text": "All",
           "value": "$__all"
         },
@@ -1372,7 +1553,6 @@
           "uid": "Prometheus"
         },
         "definition": "label_values(container_last_seen, name)",
-        "hide": 0,
         "includeAll": true,
         "label": "Container",
         "multi": true,
@@ -1384,20 +1564,15 @@
         },
         "refresh": 1,
         "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
         "type": "query"
       },
       {
         "current": {
-          "selected": false,
           "text": "5m",
           "value": "5m"
         },
-        "hide": 0,
         "includeAll": false,
         "label": "Interval",
-        "multi": false,
         "name": "interval",
         "options": [
           {
@@ -1422,9 +1597,29 @@
           }
         ],
         "query": "1m,5m,10m,30m",
-        "queryValue": "",
-        "skipUrlSync": false,
         "type": "custom"
+      },
+      {
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "PBFA97CFB590B2093"
+        },
+        "definition": "query_result(label_values(container_cpu_usage_seconds_total, container_name))",
+        "label": "Containers",
+        "name": "container_name",
+        "options": [],
+        "query": {
+          "qryType": 3,
+          "query": "query_result(label_values(container_cpu_usage_seconds_total, container_name))",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "/^telemetry-(.*)/",
+        "type": "query"
       }
     ]
   },
@@ -1436,6 +1631,5 @@
   "timezone": "browser",
   "title": "🐳 Monitoramento de Containers - cAdvisor",
   "uid": "cadvisor-dashboard",
-  "version": 1,
-  "weekStart": ""
+  "version": 3
 }
