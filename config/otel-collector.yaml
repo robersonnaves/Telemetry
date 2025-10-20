@@ -11,6 +11,12 @@ exporters:
     tls:
       insecure: true
   
+  # Traces para Tempo
+  otlp/tempo:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
+  
   # Métricas para Prometheus
   prometheus:
     endpoint: 0.0.0.0:8889
@@ -24,7 +30,7 @@ service:
     # Pipeline de traces
     traces:
       receivers: [otlp]
-      exporters: [otlp]
+      exporters: [otlp, otlp/tempo]  # Jaeger e Tempo
     
     # Pipeline de métricas
     metrics:

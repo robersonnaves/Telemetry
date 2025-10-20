@@ -53,6 +53,21 @@ services:
     networks:
       - telemetry
 
+  tempo:
+    container_name: telemetry-tempo
+    image: grafana/tempo:latest
+    restart: unless-stopped
+    command: ["-config.file=/etc/tempo/tempo.yml"]
+    ports:
+      - "3200:3200"   # Tempo API
+      - "14317:4317"  # OTLP gRPC (porta ajustada)
+      - "14318:4318"  # OTLP HTTP (porta ajustada)
+    volumes:
+      - ./config/tempo.yml:/etc/tempo/tempo.yml
+      - tempo-data:/var/tempo
+    networks:
+      - telemetry
+
   grafana:
     container_name: telemetry-grafana
     image: grafana/grafana:latest
@@ -93,6 +108,7 @@ volumes:
   prometheus-data:
   loki-data:
   grafana-data:
+  tempo-data:
 
 networks:
   telemetry:

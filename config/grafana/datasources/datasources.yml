@@ -57,3 +57,30 @@ datasources:
         datasourceUid: Prometheus
       nodeGraph:
         enabled: true
+
+  # Tempo - datasource para traces (novo backend)
+  - name: Tempo
+    type: tempo
+    access: proxy
+    url: http://tempo:3200
+    editable: true
+    jsonData:
+      httpMethod: GET
+      tracesToLogs:
+        datasourceUid: Loki
+        tags: ['job', 'instance', 'pod', 'namespace']
+        mappedTags: [{ key: 'service.name', value: 'service' }]
+        spanStartTimeShift: '1h'
+        spanEndTimeShift: '1h'
+        filterByTraceID: true
+      tracesToMetrics:
+        datasourceUid: Prometheus
+        tags: [{ key: 'service.name', value: 'service' }, { key: 'job' }]
+      serviceMap:
+        datasourceUid: Prometheus
+      nodeGraph:
+        enabled: true
+      search:
+        hide: false
+      lokiSearch:
+        datasourceUid: Loki
