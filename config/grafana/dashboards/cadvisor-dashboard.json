@@ -1598,28 +1598,6 @@
         ],
         "query": "1m,5m,10m,30m",
         "type": "custom"
-      },
-      {
-        "current": {
-          "text": "",
-          "value": ""
-        },
-        "datasource": {
-          "type": "prometheus",
-          "uid": "PBFA97CFB590B2093"
-        },
-        "definition": "query_result(label_values(container_cpu_usage_seconds_total, container_name))",
-        "label": "Containers",
-        "name": "container_name",
-        "options": [],
-        "query": {
-          "qryType": 3,
-          "query": "query_result(label_values(container_cpu_usage_seconds_total, container_name))",
-          "refId": "PrometheusVariableQueryEditor-VariableQuery"
-        },
-        "refresh": 1,
-        "regex": "/^telemetry-(.*)/",
-        "type": "query"
       }
     ]
   },
@@ -1631,5 +1609,5 @@
   "timezone": "browser",
   "title": "🐳 Monitoramento de Containers - cAdvisor",
   "uid": "cadvisor-dashboard",
-  "version": 3
+  "version": 4
 }
