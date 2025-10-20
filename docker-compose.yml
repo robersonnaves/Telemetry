@@ -84,25 +84,25 @@ services:
     networks:
       - telemetry
 
-  cadvisor:
-    container_name: telemetry-cadvisor
-    image: gcr.io/cadvisor/cadvisor:latest
-    restart: unless-stopped
-    privileged: true
-    ports:
-      - "8080:8080"
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:ro
-      - /sys:/sys:ro
-      - /var/lib/containers:/var/lib/containers:ro
-      - /dev/disk/:/dev/disk:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    command:
-      - --store_container_labels=false
-      - --housekeeping_interval=10s
-    networks:
-      - telemetry
+  # cadvisor:
+  #   container_name: telemetry-cadvisor
+  #   image: gcr.io/cadvisor/cadvisor:latest
+  #   restart: unless-stopped
+  #   privileged: true
+  #   ports:
+  #     - "8080:8080"
+  #   volumes:
+  #     - /:/rootfs:ro
+  #     - /var/run:/var/run:ro
+  #     - /sys:/sys:ro
+  #     - /var/lib/containers:/var/lib/containers:ro
+  #     - /dev/disk/:/dev/disk:ro
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
+  #   command:
+  #     - --store_container_labels=false
+  #     - --housekeeping_interval=10s
+  #   networks:
+  #     - telemetry
 
 volumes:
   prometheus-data:
