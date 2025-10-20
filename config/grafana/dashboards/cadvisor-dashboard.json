@@ -667,7 +667,7 @@
             "type": "prometheus",
             "uid": "Prometheus"
           },
-          "expr": "(container_memory_working_set_bytes{name=~\"$container\"} / container_spec_memory_limit_bytes{name=~\"$container\"}) * 100",
+          "expr": "(sum(container_memory_working_set_bytes{name=~\"^telemetry-.*\"})/8589934592)*100",
           "interval": "",
           "legendFormat": "{{name}}",
           "refId": "A"
