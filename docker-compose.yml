@@ -84,6 +84,7 @@ services:
     networks:
       - telemetry
 
+  # Nota: Está rodando no container do host.
   # cadvisor:
   #   container_name: telemetry-cadvisor
   #   image: gcr.io/cadvisor/cadvisor:latest
