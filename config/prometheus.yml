@@ -36,6 +36,6 @@ scrape_configs:
   # Node Exporter - métricas do host
   - job_name: 'node-exporter'
     static_configs:
-      - targets: ['192.168.200.120:9100']
+      - targets: ['192.168.200.210:9100']
     scrape_interval: 15s
     metrics_path: /metrics
