@@ -332,9 +332,11 @@
             "type": "prometheus",
             "uid": "Prometheus"
           },
-          "expr": "sum(rate(container_network_receive_bytes_total{name=~\"$container\"}[$interval]))",
+          "editorMode": "code",
+          "expr": "sum(rate(container_network_receive_bytes_total{name=~\"^telemetry-.*\"}[$interval]))",
           "interval": "",
           "legendFormat": "RX",
+          "range": true,
           "refId": "A"
         },
         {
@@ -342,9 +344,11 @@
             "type": "prometheus",
             "uid": "Prometheus"
           },
-          "expr": "sum(rate(container_network_transmit_bytes_total{name=~\"$container\"}[$interval]))",
+          "editorMode": "code",
+          "expr": "sum(rate(container_network_transmit_bytes_total{name=~\"^telemetry-.*\"}[$interval]))",
           "interval": "",
           "legendFormat": "TX",
+          "range": true,
           "refId": "B"
         }
       ],
@@ -1219,7 +1223,7 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(container_network_receive_errors_total{name=~\"$container\"}[$interval])",
+          "expr": "rate(container_network_receive_errors_total{name=~\"^telemetry-.*\"}[$interval])",
           "interval": "",
           "legendFormat": "{{container_label_com_docker_compose_service}} - RX Errors",
           "range": true,
@@ -1231,7 +1235,7 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(container_network_transmit_errors_total{name=~\"$container\"}[$interval])",
+          "expr": "rate(container_network_transmit_errors_total{name=~\"^telemetry-.*\"}[$interval])",
           "interval": "",
           "legendFormat": "{{container_label_com_docker_compose_service}} - TX Errors",
           "range": true,
@@ -1510,7 +1514,8 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(container_fs_reads_bytes_total{name=~\"$container\"}[$interval])",
+          "exemplar": false,
+          "expr": "rate(container_fs_reads_bytes_total{name=~\"^telemetry-.*\"}[$interval])",
           "interval": "",
           "legendFormat": "{{container_label_com_docker_compose_service}} - Read",
           "range": true,
@@ -1522,7 +1527,7 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(container_fs_writes_bytes_total{name=~\"$container\"}[$interval])",
+          "expr": "rate(container_fs_writes_bytes_total{name=~\"^telemetry-.*\"}[$interval])",
           "interval": "",
           "legendFormat": "{{container_label_com_docker_compose_service}} - Write",
           "range": true,
@@ -1610,5 +1615,5 @@
   "timezone": "browser",
   "title": "🐳 Monitoramento de Containers - cAdvisor",
   "uid": "cadvisor-dashboard",
-  "version": 6
+  "version": 7
 }
