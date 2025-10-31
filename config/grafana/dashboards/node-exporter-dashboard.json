@@ -969,10 +969,22 @@
                                 "value": 0
                             },
                             {
+                                "color": "yellow",
+                                "value": 60
+                            },
+                            {
+                                "color": "orange",
+                                "value": 75
+                            },
+                            {
                                 "color": "red",
-                                "value": 80
+                                "value": 85
                             }
                         ]
+                    },
+                    "unit": "bytes",
+                    "custom": {
+                        "displayMode": "basic"
                     }
                 },
                 "overrides": []
@@ -985,26 +997,27 @@
             },
             "id": 16,
             "options": {
-                "displayMode": "lcd",
+                "displayMode": "basic",
                 "legend": {
-                    "calcs": [],
-                    "displayMode": "list",
-                    "placement": "bottom",
-                    "showLegend": false
+                    "calcs": ["lastNotNull"],
+                    "displayMode": "table",
+                    "placement": "right",
+                    "showLegend": true,
+                    "width": 200
                 },
                 "maxVizHeight": 300,
-                "minVizHeight": 16,
+                "minVizHeight": 75,
                 "minVizWidth": 8,
-                "namePlacement": "auto",
-                "orientation": "vertical",
+                "namePlacement": "left",
+                "orientation": "horizontal",
                 "reduceOptions": {
-                    "calcs": [],
+                    "calcs": ["lastNotNull"],
                     "fields": "",
-                    "values": true
+                    "values": false
                 },
-                "showUnfilled": true,
+                "showUnfilled": false,
                 "sizing": "auto",
-                "valueMode": "color"
+                "valueMode": "text"
             },
             "pluginVersion": "12.2.0",
             "targets": [
@@ -1014,10 +1027,10 @@
                         "uid": "Prometheus"
                     },
                     "expr": "node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes",
-                    "format": "table",
+                    "format": "time_series",
                     "instant": true,
                     "interval": "",
-                    "legendFormat": "Used",
+                    "legendFormat": "💾 Memória Usada",
                     "refId": "A"
                 },
                 {
@@ -1026,10 +1039,10 @@
                         "uid": "Prometheus"
                     },
                     "expr": "node_memory_Buffers_bytes",
-                    "format": "table",
+                    "format": "time_series",
                     "instant": true,
                     "interval": "",
-                    "legendFormat": "Buffers",
+                    "legendFormat": "📦 Buffers",
                     "refId": "B"
                 },
                 {
@@ -1038,14 +1051,26 @@
                         "uid": "Prometheus"
                     },
                     "expr": "node_memory_Cached_bytes",
-                    "format": "table",
+                    "format": "time_series",
                     "instant": true,
                     "interval": "",
-                    "legendFormat": "Cached",
+                    "legendFormat": "⚡ Cache",
                     "refId": "C"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "Prometheus"
+                    },
+                    "expr": "node_memory_MemAvailable_bytes",
+                    "format": "time_series",
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "✅ Disponível",
+                    "refId": "D"
                 }
             ],
-            "title": "🏆 Memory Breakdown",
+            "title": "🧠 Detalhamento da Memória",
             "type": "bargauge"
         },
         {
