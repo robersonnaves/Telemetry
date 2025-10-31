@@ -1764,20 +1764,7 @@
               "mode": "line+area"
             }
           },
-          "mappings": [
-            {
-              "options": {
-                "from": 0,
-                "result": {
-                  "color": "green",
-                  "index": 0,
-                  "text": "Saudável"
-                },
-                "to": 1000000
-              },
-              "type": "range"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1799,8 +1786,7 @@
               }
             ]
           },
-          "unit": "short",
-          "displayName": "Inodes"
+          "unit": "short"
         },
         "overrides": [
           {
