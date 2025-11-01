@@ -1,27 +1,27 @@
 # Stack de Telemetria com OpenTelemetry
 
-Uma stack completa de observabilidade usando Docker Compose com OpenTelemetry Collector, Jaeger, Grafana Loki, Prometheus, cAdvisor e Grafana.
+Uma stack simplificada de observabilidade usando Docker Compose com OpenTelemetry Collector e Jaeger All-in-One.
 
 ## 🏗️ Arquitetura
 
 ```
-Applications → OpenTelemetry Collector → {
-  - Jaeger (traces)
-  - Loki (logs)  
-  - Prometheus (metrics)
-}
-                                         ↓
-                                     Grafana (dashboards)
-                                         
-Containers → cAdvisor → Prometheus → Grafana
+Applications → OpenTelemetry Collector → Traces  → Jaeger All-in-One
+                    (OTLP)                Metrics → Prometheus
+                                          Logs    → Loki
 ```
+
+### Por que quatro serviços?
+
+- **OpenTelemetry Collector**: Coletor universal que recebe dados via OTLP de diferentes aplicações e protocolos
+- **Jaeger All-in-One**: Sistema completo de tracing distribuído com interface web para visualização
+- **Prometheus**: Sistema de monitoramento e armazenamento de métricas em séries temporais
+- **Loki**: Sistema de agregação e armazenamento de logs com interface de consulta
 
 ## 📋 Pré-requisitos
 
 - Docker e Docker Compose instalados
-- Podman com socket Docker compatível em `/var/run/docker.sock`
-- Pelo menos 4GB de RAM disponível
-- Pelo menos 10GB de espaço em disco
+- Pelo menos 2GB de RAM disponível
+- Pelo menos 1GB de espaço em disco
 
 ## 🚀 Como Usar
 
@@ -29,7 +29,7 @@ Containers → cAdvisor → Prometheus → Grafana
 
 ```bash
 # Clone ou baixe este repositório
-cd /mnt/d/dev/Telemetry
+cd /path/to/Telemetry
 
 # Iniciar todos os serviços
 docker-compose up -d
@@ -42,65 +42,151 @@ docker-compose ps
 
 | Serviço | URL | Descrição |
 |---------|-----|-----------|
-| **Grafana** | http://localhost:3000 | Dashboards e visualização (admin/admin) |
-| **Prometheus** | http://localhost:9090 | Métricas e alertas |
-| **Jaeger UI** | http://localhost:16686 | Traces distribuídos |
-| **Loki** | http://localhost:3100 | Logs (API) |
-| **cAdvisor** | http://localhost:8080 | Métricas de containers |
+| **Jaeger UI** | http://localhost:16686 | Interface web para visualização de traces |
+| **Prometheus** | http://localhost:9090 | Interface web para visualização de métricas |
+| **Loki** | http://localhost:3100 | API para consulta de logs |
+| **OTLP gRPC** | localhost:4317 | Endpoint para envio de traces, métricas e logs via OTLP gRPC |
 
 ### 3. Enviar Dados de Teste
 
-#### Enviar Traces via OTLP
+#### Enviar Traces via OTLP gRPC
 
 ```bash
-# Exemplo usando curl para enviar trace
-curl -X POST http://localhost:4318/v1/traces \
-  -H "Content-Type: application/json" \
-  -d '{
-    "resourceSpans": [{
-      "resource": {
-        "attributes": [{
-          "key": "service.name",
-          "value": {"stringValue": "test-service"}
-        }]
-      },
-      "scopeSpans": [{
-        "spans": [{
-          "traceId": "12345678901234567890123456789012",
-          "spanId": "1234567890123456",
-          "name": "test-span",
-          "startTimeUnixNano": "1640995200000000000",
-          "endTimeUnixNano": "1640995201000000000"
-        }]
+# Exemplo usando grpcurl para enviar trace via gRPC
+grpcurl -plaintext -d '{
+  "resourceSpans": [{
+    "resource": {
+      "attributes": [{
+        "key": "service.name",
+        "value": {"stringValue": "test-service"}
+      }]
+    },
+    "scopeSpans": [{
+      "spans": [{
+        "traceId": "12345678901234567890123456789012",
+        "spanId": "1234567890123456",
+        "name": "test-span",
+        "startTimeUnixNano": "1640995200000000000",
+        "endTimeUnixNano": "1640995201000000000"
       }]
     }]
-  }'
+  }]
+}' localhost:4317 opentelemetry.proto.collector.trace.v1.TraceService/Export
 ```
 
-#### Enviar Logs via OTLP
+#### Usando SDKs OpenTelemetry
 
-```bash
-# Exemplo usando curl para enviar logs
-curl -X POST http://localhost:4318/v1/logs \
-  -H "Content-Type: application/json" \
-  -d '{
-    "resourceLogs": [{
-      "resource": {
-        "attributes": [{
-          "key": "service.name",
-          "value": {"stringValue": "test-service"}
-        }]
-      },
-      "scopeLogs": [{
-        "logRecords": [{
-          "timeUnixNano": "1640995200000000000",
-          "severityNumber": 9,
-          "severityText": "INFO",
-          "body": {"stringValue": "Test log message"}
-        }]
-      }]
-    }]
-  }'
+##### Python
+```python
+# Exemplo Python
+from opentelemetry import trace
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+
+# Configurar o exporter
+exporter = OTLPSpanExporter(endpoint="http://localhost:4317", insecure=True)
+trace.set_tracer_provider(TracerProvider())
+tracer = trace.get_tracer(__name__)
+
+# Adicionar o exporter
+span_processor = BatchSpanProcessor(exporter)
+trace.get_tracer_provider().add_span_processor(span_processor)
+
+# Criar uma trace
+with tracer.start_as_current_span("test-operation") as span:
+    span.set_attribute("service.name", "test-service")
+    span.set_attribute("operation", "test")
+```
+
+##### C# (.NET)
+```csharp
+// Exemplo C# - Program.cs
+using OpenTelemetry;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Logs;
+using System.Diagnostics;
+
+// Configurar o OpenTelemetry
+using var tracerProvider = Sdk.CreateTracerProviderBuilder()
+    .SetResourceBuilder(ResourceBuilder.CreateDefault()
+        .AddService(serviceName: "test-service", serviceVersion: "1.0.0"))
+    .AddSource("MyApplication")
+    .AddOtlpExporter(options =>
+    {
+        options.Endpoint = new Uri("http://localhost:4317");
+    })
+    .Build();
+
+// Configurar métricas
+using var meterProvider = Sdk.CreateMeterProviderBuilder()
+    .SetResourceBuilder(ResourceBuilder.CreateDefault()
+        .AddService(serviceName: "test-service", serviceVersion: "1.0.0"))
+    .AddMeter("MyApplication")
+    .AddOtlpExporter(options =>
+    {
+        options.Endpoint = new Uri("http://localhost:4317");
+    })
+    .Build();
+
+// Configurar logs
+using var loggerFactory = LoggerFactory.Create(builder =>
+{
+    builder.AddOpenTelemetry(options =>
+    {
+        options.SetResourceBuilder(ResourceBuilder.CreateDefault()
+            .AddService(serviceName: "test-service", serviceVersion: "1.0.0"));
+        options.AddOtlpExporter(otlpOptions =>
+        {
+            otlpOptions.Endpoint = new Uri("http://localhost:4317");
+        });
+    });
+});
+
+// Criar um ActivitySource, Meter e Logger
+using var activitySource = new ActivitySource("MyApplication");
+using var meter = new Meter("MyApplication");
+var logger = loggerFactory.CreateLogger("MyApplication");
+
+// Criar contadores de métricas
+var requestCounter = meter.CreateCounter<int>("requests_total", "Total number of requests");
+var responseTimeHistogram = meter.CreateHistogram<double>("response_time_seconds", "Response time in seconds");
+
+// Criar uma trace
+using var activity = activitySource.StartActivity("test-operation");
+activity?.SetTag("service.name", "test-service");
+activity?.SetTag("operation", "test");
+activity?.SetTag("http.method", "GET");
+activity?.SetTag("http.url", "http://localhost:5000/api/test");
+
+// Simular trabalho e registrar métricas
+var stopwatch = Stopwatch.StartNew();
+await Task.Delay(100);
+stopwatch.Stop();
+
+// Registrar métricas
+requestCounter.Add(1, new KeyValuePair<string, object?>("method", "GET"));
+responseTimeHistogram.Record(stopwatch.Elapsed.TotalSeconds);
+
+// Registrar logs
+logger.LogInformation("Operation completed successfully. TraceId: {TraceId}, Duration: {Duration}ms", 
+    activity?.TraceId, stopwatch.ElapsedMilliseconds);
+
+Console.WriteLine($"Trace ID: {activity?.TraceId}");
+Console.WriteLine($"Span ID: {activity?.SpanId}");
+Console.WriteLine($"Response time: {stopwatch.ElapsedMilliseconds}ms");
+```
+
+##### Dependências NuGet para C#
+```xml
+<!-- Exemplo de PackageReference no .csproj -->
+<PackageReference Include="OpenTelemetry" Version="1.7.0" />
+<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.7.0" />
+<PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.7.0" />
+<PackageReference Include="OpenTelemetry.Logs" Version="1.7.0" />
+<PackageReference Include="System.Diagnostics.DiagnosticSource" Version="8.0.0" />
 ```
 
 ### 4. Parar a Stack
@@ -113,48 +199,93 @@ docker-compose down
 docker-compose down -v
 ```
 
-## 📊 Dashboards Disponíveis
+## 📊 Funcionalidades Disponíveis
 
-### cAdvisor Dashboard
-- **CPU Usage por Container**: Uso de CPU em percentual
-- **Memory Usage por Container**: Uso de memória em bytes
-- **Network I/O por Container**: Tráfego de rede (RX/TX)
-- **Disk I/O por Container**: Operações de disco (leitura/escrita)
-- **Total de Containers**: Contador de containers ativos
-- **CPU Cores Disponíveis**: Número de cores do sistema
-- **Memória Total do Sistema**: Memória total disponível
-- **CPU Usage Total (%)**: Uso total de CPU do sistema
+### Jaeger UI
+- **Search**: Busca de traces por serviço, operação, tags e tempo
+- **Trace Details**: Visualização detalhada de spans e dependências
+- **Service Map**: Mapa de dependências entre serviços
+- **Compare**: Comparação de traces
+- **Dependencies**: Análise de dependências entre serviços
+
+### Prometheus UI
+- **Targets**: Status dos endpoints sendo monitorados
+- **Graph**: Visualização de métricas com queries PromQL
+- **Alerts**: Configuração e visualização de alertas
+- **Status**: Informações sobre configuração e armazenamento
+
+### Loki API
+- **Query**: Consulta de logs usando LogQL
+- **Labels**: Lista de labels disponíveis
+- **Series**: Consulta de séries de logs
+- **Stats**: Estatísticas de consultas
+
+### Exemplos de Queries PromQL
+```promql
+# Taxa de requisições por segundo
+rate(requests_total[5m])
+
+# Tempo de resposta percentil 95
+histogram_quantile(0.95, rate(response_time_seconds_bucket[5m]))
+
+# Total de requisições por método HTTP
+sum by (method) (requests_total)
+
+# Uso de CPU do OpenTelemetry Collector
+rate(otelcol_processor_batch_batch_send_size_sum[5m])
+```
+
+### Exemplos de Queries LogQL
+```logql
+# Todos os logs de um serviço
+{service_name="test-service"}
+
+# Logs de erro de um serviço
+{service_name="test-service"} |= "ERROR"
+
+# Logs com TraceID específico
+{service_name="test-service"} |= "TraceId=1234567890"
+
+# Contagem de logs por nível
+sum by (level) (count_over_time({service_name="test-service"}[5m]))
+
+# Logs de uma operação específica
+{service_name="test-service", operation="test-operation"}
+```
 
 ## 🔧 Configuração
 
 ### OpenTelemetry Collector
 
-O collector está configurado para receber dados via:
-- **OTLP gRPC**: porta 4317
-- **OTLP HTTP**: porta 4318
-- **Jaeger gRPC**: porta 14250
-- **Jaeger HTTP**: porta 14268
+O collector está configurado para:
+- **Receber dados via OTLP gRPC**: porta 4317 (traces, métricas e logs)
+- **Exportar traces para Jaeger**: via OTLP para jaeger:4317
+- **Exportar métricas para Prometheus**: porta 8889
+- **Exportar logs para Loki**: via HTTP para loki:3100
 
-E exportar para:
-- **Jaeger**: traces
-- **Loki**: logs
-- **Prometheus**: métricas
+### Jaeger All-in-One
+
+Configurado com:
+- **Storage**: Memória (dados perdidos ao reiniciar)
+- **UI**: Interface web na porta 16686
+- **OTLP**: Recebe traces na porta 4317
 
 ### Prometheus
 
-Configurado para fazer scraping de:
-- OpenTelemetry Collector (porta 8888)
-- cAdvisor (porta 8080)
-- Próprio Prometheus (porta 9090)
-- Jaeger components
-- Loki
-- Grafana
+Configurado com:
+- **Storage**: Volume persistente (dados mantidos entre reinicializações)
+- **Retention**: 7 dias
+- **UI**: Interface web na porta 9090
+- **Scraping**: OpenTelemetry Collector (porta 8889) e auto-monitoramento
 
 ### Loki
 
-- **Retention**: 7 dias (168h)
-- **Storage**: filesystem local
-- **Schema**: v11 com TSDB
+Configurado com:
+- **Storage**: Volume persistente com TSDB (dados mantidos entre reinicializações)
+- **Retention**: 7 dias (consistente com Prometheus)
+- **API**: HTTP na porta 3100
+- **Schema**: v13 com TSDB para melhor performance
+- **Rate Limiting**: Configurado para desenvolvimento
 
 ## 🐛 Troubleshooting
 
@@ -165,9 +296,10 @@ Configurado para fazer scraping de:
 docker-compose logs
 
 # Ver logs de um serviço específico
-docker-compose logs grafana
-docker-compose logs prometheus
 docker-compose logs otel-collector
+docker-compose logs jaeger
+docker-compose logs prometheus
+docker-compose logs loki
 ```
 
 ### Verificar Status dos Serviços
@@ -185,21 +317,45 @@ docker-compose ps --format "table {{.Name}}\t{{.Status}}"
 1. **Porta já em uso**:
    ```bash
    # Verificar portas em uso
-   netstat -tulpn | grep :3000
+   netstat -tulpn | grep :16686
+   netstat -tulpn | grep :4317
+   netstat -tulpn | grep :9090
+   netstat -tulpn | grep :3100
    
    # Parar serviço conflitante ou alterar porta no docker-compose.yml
    ```
 
-2. **cAdvisor não consegue acessar Docker socket**:
+2. **Jaeger não recebe traces**:
    ```bash
-   # Verificar permissões do socket
-   ls -la /var/run/docker.sock
+   # Verificar se o collector está enviando dados
+   docker-compose logs otel-collector
    
-   # Ajustar permissões se necessário
-   sudo chmod 666 /var/run/docker.sock
+   # Verificar se o Jaeger está recebendo
+   docker-compose logs jaeger
    ```
 
-3. **Falta de memória**:
+3. **Prometheus não coleta métricas**:
+   ```bash
+   # Verificar se o collector está exportando métricas
+   curl http://localhost:8889/metrics
+   
+   # Verificar logs do Prometheus
+   docker-compose logs prometheus
+   ```
+
+4. **Loki não recebe logs**:
+   ```bash
+   # Verificar se o collector está enviando logs
+   docker-compose logs otel-collector | grep loki
+   
+   # Verificar logs do Loki
+   docker-compose logs loki
+   
+   # Testar API do Loki
+   curl "http://localhost:3100/loki/api/v1/labels"
+   ```
+
+5. **Falta de memória**:
    ```bash
    # Verificar uso de memória
    docker stats
@@ -207,10 +363,10 @@ docker-compose ps --format "table {{.Name}}\t{{.Status}}"
    # Ajustar limites no docker-compose.yml se necessário
    ```
 
-4. **Grafana não carrega dashboards**:
-   - Verificar se os arquivos de provisioning estão corretos
-   - Verificar logs: `docker-compose logs grafana`
-   - Reiniciar Grafana: `docker-compose restart grafana`
+6. **Traces não aparecem na UI**:
+   - Verificar se os dados estão sendo enviados corretamente
+   - Verificar logs: `docker-compose logs jaeger`
+   - Reiniciar serviços: `docker-compose restart`
 
 ### Resetar Tudo
 
@@ -228,21 +384,12 @@ docker-compose up -d
 ## 📁 Estrutura de Arquivos
 
 ```
-/mnt/d/dev/Telemetry/
+Telemetry/
 ├── docker-compose.yml              # Orquestração dos serviços
-├── otel-collector/
-│   └── config.yaml                 # Configuração do OpenTelemetry Collector
-├── prometheus/
-│   └── prometheus.yml              # Configuração do Prometheus
-├── loki/
-│   └── loki-config.yml             # Configuração do Loki
-├── grafana/
-│   ├── provisioning/
-│   │   ├── datasources/
-│   │   │   └── datasources.yml     # Datasources do Grafana
-│   │   └── dashboards/
-│   │       ├── dashboards.yml      # Configuração de dashboards
-│   │       └── cadvisor-dashboard.json # Dashboard do cAdvisor
+├── config/
+│   ├── otel-collector.yaml         # Configuração do OpenTelemetry Collector
+│   ├── prometheus.yml              # Configuração do Prometheus
+│   └── loki.yml                    # Configuração do Loki
 └── README.md                       # Este arquivo
 ```
 
@@ -251,16 +398,17 @@ docker-compose up -d
 - [OpenTelemetry Documentation](https://opentelemetry.io/docs/)
 - [Jaeger Documentation](https://www.jaegertracing.io/docs/)
 - [Prometheus Documentation](https://prometheus.io/docs/)
-- [Grafana Documentation](https://grafana.com/docs/)
 - [Loki Documentation](https://grafana.com/docs/loki/)
-- [cAdvisor Documentation](https://github.com/google/cadvisor)
+- [OTLP Protocol](https://opentelemetry.io/docs/specs/otlp/)
 
 ## 📝 Notas
 
 - Esta stack é ideal para desenvolvimento e testes
-- Para produção, considere usar volumes persistentes e configurações de segurança
-- O cAdvisor monitora containers via Docker socket, incluindo Podman com compatibilidade Docker
-- Todos os dados são armazenados localmente nos volumes do Docker
+- Para produção, considere usar storage persistente (Elasticsearch/Cassandra) para o Jaeger
+- Traces são armazenados em memória e são perdidos ao reiniciar os containers
+- Métricas são armazenadas persistentemente no Prometheus (7 dias de retenção)
+- Logs são armazenados persistentemente no Loki (7 dias de retenção)
+- Use SDKs OpenTelemetry para integração com suas aplicações
 
 ## 🤝 Contribuição
 

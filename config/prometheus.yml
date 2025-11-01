@@ -1,0 +1,41 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+scrape_configs:
+  # OpenTelemetry Collector metrics
+  - job_name: 'otel-collector'
+    static_configs:
+      - targets: ['otel-collector:8889']
+    scrape_interval: 15s
+    metrics_path: /metrics
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    scrape_interval: 15s
+
+  - job_name: 'rcheck-api'  
+    static_configs:
+      - targets: ['rcheck-api:5001']
+    scrape_interval: 15s
+    metrics_path: /api/debug/metrics
+
+  # cAdvisor - métricas de containers
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['192.168.200.210:8080']
+    scrape_interval: 15s
+    metrics_path: /metrics
+
+  # Node Exporter - métricas do host
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['192.168.200.210:9100']
+    scrape_interval: 15s
+    metrics_path: /metrics

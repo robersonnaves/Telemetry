@@ -1,7 +1,7 @@
 apiVersion: 1
 
 datasources:
-  # Prometheus - Default datasource
+  # Prometheus - datasource principal para métricas
   - name: Prometheus
     type: prometheus
     access: proxy
@@ -16,9 +16,8 @@ datasources:
       cacheLevel: 'High'
       disableRecordingRules: false
       incrementalQueryOverlapWindow: 10m
-    version: 1
 
-  # Loki for logs
+  # Loki - datasource para logs
   - name: Loki
     type: loki
     access: proxy
@@ -27,22 +26,20 @@ datasources:
     jsonData:
       maxLines: 1000
       derivedFields:
-        - datasourceUid: jaeger
+        - datasourceUid: Prometheus
           matcherRegex: "traceID=(\\w+)"
           name: TraceID
           url: "$${__value.raw}"
-    version: 1
 
-  # Jaeger for traces
+  # Jaeger - datasource para traces
   - name: Jaeger
     type: jaeger
     access: proxy
-    url: http://jaeger-query:16686
+    url: http://jaeger:16686
     editable: true
-    uid: jaeger
     jsonData:
       tracesToLogs:
-        datasourceUid: loki
+        datasourceUid: Loki
         tags: ['job', 'instance', 'pod', 'namespace']
         mappedTags: [{ key: 'service.name', value: 'service' }]
         mapTagNamesEnabled: false
@@ -50,21 +47,40 @@ datasources:
         spanEndTimeShift: '1h'
         filterByTraceID: false
         filterBySpanID: false
-        customQuery: true
-        query: '{service="${__data.fields.service}"} |= "${__data.fields.traceID}"'
       tracesToMetrics:
-        datasourceUid: prometheus
+        datasourceUid: Prometheus
         tags: [{ key: 'service.name', value: 'service' }, { key: 'job' }]
         queries:
           - name: 'Sample query'
             query: 'sum(rate(traces_spanmetrics_latency_bucket{$$__tags}[5m]))'
       serviceMap:
-        datasourceUid: prometheus
+        datasourceUid: Prometheus
+      nodeGraph:
+        enabled: true
+
+  # Tempo - datasource para traces (novo backend)
+  - name: Tempo
+    type: tempo
+    access: proxy
+    url: http://tempo:3200
+    editable: true
+    jsonData:
+      httpMethod: GET
+      tracesToLogs:
+        datasourceUid: Loki
+        tags: ['job', 'instance', 'pod', 'namespace']
+        mappedTags: [{ key: 'service.name', value: 'service' }]
+        spanStartTimeShift: '1h'
+        spanEndTimeShift: '1h'
+        filterByTraceID: true
+      tracesToMetrics:
+        datasourceUid: Prometheus
+        tags: [{ key: 'service.name', value: 'service' }, { key: 'job' }]
+      serviceMap:
+        datasourceUid: Prometheus
       nodeGraph:
         enabled: true
       search:
         hide: false
-      spanBar:
-        type: 'Tag'
-        tag: 'http.path'
-    version: 1
+      lokiSearch:
+        datasourceUid: Loki

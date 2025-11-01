@@ -1,0 +1,70 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+
+processors:
+  # Processador para preservar e enriquecer atributos de recurso
+  resource:
+    attributes:
+      - key: service.name
+        action: upsert
+        from_attribute: service.name
+      - key: service.instance.id
+        action: upsert
+        from_attribute: service.instance.id
+
+  # Detecção automática de informações do ambiente
+  resourcedetection:
+    detectors: [env, system]
+    timeout: 5s
+    override: false
+
+  # Processador de atributos para logs
+  attributes:
+    actions:
+      - key: service.name
+        action: upsert
+        from_attribute: service.name
+
+exporters:
+  # Traces para Jaeger
+  otlp:
+    endpoint: jaeger:4317
+    tls:
+      insecure: true
+  
+  # Traces para Tempo
+  otlp/tempo:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
+  
+  # Métricas para Prometheus
+  prometheus:
+    endpoint: 0.0.0.0:8889
+  
+  # Logs para Loki via OTLP
+  otlphttp/loki:
+    endpoint: http://loki:3100/otlp
+
+service:
+  pipelines:
+    # Pipeline de traces
+    traces:
+      receivers: [otlp]
+      processors: [resourcedetection, resource]
+      exporters: [otlp, otlp/tempo]  # Jaeger e Tempo
+    
+    # Pipeline de métricas
+    metrics:
+      receivers: [otlp]
+      processors: [resourcedetection, resource]
+      exporters: [prometheus]
+    
+    # Pipeline de logs
+    logs:
+      receivers: [otlp]
+      processors: [resourcedetection, resource, attributes]
+      exporters: [otlphttp/loki]

@@ -1,204 +1,121 @@
 services:
-  # Jaeger Collector
-  jaeger-collector:
-    image: jaegertracing/jaeger-collector:latest
-    container_name: jaeger-collector
-    restart: unless-stopped
-    environment:
-      - SPAN_STORAGE_TYPE=memory
-      - MEMORY_MAX_TRACES=10000
-      - COLLECTOR_OTLP_ENABLED=true
+  otel-collector:
+    container_name: telemetry-otel-collector
+    image: otel/opentelemetry-collector-contrib:latest
+    command: ["--config=/etc/config/otel-collector.yaml"]
+    volumes:
+      - ./config:/etc/config
     ports:
-      - "14250:14250"  # gRPC
-      - "14268:14268"  # HTTP
+      - "4317:4317"
+      - "8889:8889"
     networks:
       - telemetry
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:14269/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
-  # Jaeger Query
-  jaeger-query:
-    image: jaegertracing/jaeger-query:latest
-    container_name: jaeger-query
-    restart: unless-stopped
-    environment:
-      - SPAN_STORAGE_TYPE=memory
-      - MEMORY_MAX_TRACES=10000
-      - QUERY_BASE_PATH=/
+  jaeger:
+    container_name: telemetry-jaeger
+    image: jaegertracing/all-in-one:latest
     ports:
       - "16686:16686"
     networks:
       - telemetry
-    depends_on:
-      - jaeger-collector
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:16686/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
-  # OpenTelemetry Collector
-  otel-collector:
-    image: otel/opentelemetry-collector-contrib:latest
-    container_name: otel-collector
-    restart: unless-stopped
-    command: ["--config=/etc/otel-collector-config.yaml"]
-    volumes:
-      - ./otel-collector/config.yaml:/etc/otel-collector-config.yaml
-    ports:
-      - "4317:4317"   # OTLP gRPC receiver
-      - "4318:4318"   # OTLP HTTP receiver
-      - "8888:8888"   # Prometheus metrics
-      - "8889:8889"   # Prometheus exporter
-    networks:
-      - telemetry
-    depends_on:
-      - jaeger-collector
-      - prometheus
-      - loki
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8888/metrics"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # Prometheus
   prometheus:
+    container_name: telemetry-prometheus
     image: prom/prometheus:latest
-    container_name: prometheus
     restart: unless-stopped
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=7d'
       - '--web.enable-lifecycle'
-      - '--web.enable-remote-write-receiver'
-      - '--enable-feature=exemplar-storage'
     ports:
       - "9090:9090"
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus-data:/prometheus
     networks:
       - telemetry
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
-  # Loki
   loki:
+    container_name: telemetry-loki
     image: grafana/loki:latest
-    container_name: loki
     restart: unless-stopped
-    command: -config.file=/etc/loki/local-config.yaml
+    command: -config.file=/etc/loki/loki.yml
     ports:
       - "3100:3100"
+      - "9096:9096"
+      - "4318:4318"
     volumes:
-      - ./loki/loki-config.yml:/etc/loki/local-config.yaml
+      - ./config/loki.yml:/etc/loki/loki.yml
       - loki-data:/loki
     networks:
       - telemetry
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3100/ready"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
-  # cAdvisor
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
-    container_name: cadvisor
+  tempo:
+    container_name: telemetry-tempo
+    image: grafana/tempo:latest
     restart: unless-stopped
-    privileged: true
-    devices:
-      - /dev/kmsg:/dev/kmsg
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:ro
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
-      - /cgroup:/cgroup:ro
+    command: ["-config.file=/etc/tempo/tempo.yml"]
     ports:
-      - "8080:8080"
+      - "3200:3200"   # Tempo API
+      - "14317:4317"  # OTLP gRPC (porta ajustada)
+      - "14318:4318"  # OTLP HTTP (porta ajustada)
+    volumes:
+      - ./config/tempo.yml:/etc/tempo/tempo.yml
+      - tempo-data:/var/tempo
     networks:
       - telemetry
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/healthz"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
-  # Grafana
   grafana:
+    container_name: telemetry-grafana
     image: grafana/grafana:latest
-    container_name: grafana
     restart: unless-stopped
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_USERS_ALLOW_SIGN_UP=false
-      - GF_USERS_ALLOW_ORG_CREATE=false
-      - GF_AUTH_ANONYMOUS_ENABLED=false
-      - GF_FEATURE_TOGGLES_ENABLE=grafanaManagedRecordingRules
     ports:
       - "3000:3000"
     volumes:
       - grafana-data:/var/lib/grafana
-      - ./grafana/dashboards:/var/lib/grafana/dashboards
-      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./config/grafana:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false    
     networks:
       - telemetry
-    depends_on:
-      - prometheus
-      - loki
-      - jaeger-query
-    healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
 
-  # Node Exporter - Host metrics
-  node-exporter:
-    image: prom/node-exporter:v1.7.0
-    container_name: node-exporter
-    restart: unless-stopped
-    ports:
-      - "9100:9100"
-    command:
-      - --path.rootfs=/host/root
-      - --path.procfs=/host/proc
-      - --path.sysfs=/host/sys
-      - --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($|/)
-      - --collector.filesystem.fs-types-exclude=^(sysfs|procfs|devtmpfs|tmpfs|overlay|squashfs|nsfs|cgroup2?)$
-    volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /:/host/root:ro
-    networks:
-      - telemetry
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9100/metrics"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+  # Nota: Está rodando no container do host.
+  # cadvisor:
+  #   container_name: telemetry-cadvisor
+  #   image: gcr.io/cadvisor/cadvisor:latest
+  #   restart: unless-stopped
+  #   privileged: true
+  #   ports:
+  #     - "8080:8080"
+  #   volumes:
+  #     - /:/rootfs:ro
+  #     - /var/run:/var/run:ro
+  #     - /sys:/sys:ro
+  #     - /var/lib/containers:/var/lib/containers:ro
+  #     - /dev/disk/:/dev/disk:ro
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
+  #   command:
+  #     - --store_container_labels=false
+  #     - --housekeeping_interval=10s
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 30s
+  #   networks:
+  #     - telemetry
 
 volumes:
-  jaeger-storage-data:
-    driver: local
   prometheus-data:
-    driver: local
   loki-data:
-    driver: local
   grafana-data:
-    driver: local
+  tempo-data:
 
 networks:
   telemetry:
