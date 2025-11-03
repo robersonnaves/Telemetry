@@ -9,6 +9,7 @@ services:
       - "4317:4317"
       - "8889:8889"
     networks:
+      - central
       - telemetry
 
   jaeger:
@@ -18,6 +19,7 @@ services:
       - "16686:16686"
     networks:
       - telemetry
+      - central
 
   prometheus:
     container_name: telemetry-prometheus
@@ -37,6 +39,7 @@ services:
       - prometheus-data:/prometheus
     networks:
       - telemetry
+      - central
 
   loki:
     container_name: telemetry-loki
@@ -52,6 +55,7 @@ services:
       - loki-data:/loki
     networks:
       - telemetry
+      - central
 
   tempo:
     container_name: telemetry-tempo
@@ -66,6 +70,7 @@ services:
       - ./config/tempo.yml:/etc/tempo/tempo.yml
       - tempo-data:/var/tempo
     networks:
+      - central
       - telemetry
 
   grafana:
@@ -83,6 +88,7 @@ services:
       - GF_USERS_ALLOW_SIGN_UP=false    
     networks:
       - telemetry
+      - central
 
   # Nota: Está rodando no container do host.
   # cadvisor:
@@ -120,3 +126,5 @@ volumes:
 networks:
   telemetry:
     driver: bridge
+  central:
+    external: true
