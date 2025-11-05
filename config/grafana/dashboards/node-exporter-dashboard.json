@@ -2745,7 +2745,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "🖥️ Monitoramento de Host - Node Exporter",
+  "title": "🖥️ Monitoramento de Host - DebianServer1",
   "uid": "node-exporter-dashboard",
   "version": 3
 }
