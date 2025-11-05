@@ -1613,7 +1613,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "🐳 Monitoramento de Containers - cAdvisor",
+  "title": "🐳 Monitoramento de Containers - DebianServer1",
   "uid": "cadvisor-dashboard",
   "version": 7
 }
