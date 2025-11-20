@@ -22,32 +22,15 @@ processors:
     override: false
 
   # Processador de atributos para logs
+  # Os atributos de data tracking (log_type, log_category, audit.*) já vêm
+  # automaticamente do log via BeginScope no AuditLogger, então não precisam
+  # ser criados aqui. Este processador apenas preserva service.name.
   attributes:
     actions:
-      # Labels de serviço (existentes)
+      # Preservar service.name (já existe como atributo de recurso)
       - key: service.name
         action: upsert
         from_attribute: service.name
-      
-      # Labels de identificação de tipo de log (data tracking)
-      - key: log_type
-        action: insert
-      - key: log_category
-        action: insert
-      - key: log_source
-        action: insert
-      
-      # Labels de auditoria (data tracking)
-      - key: audit.entity_name
-        action: insert
-      - key: audit.operation
-        action: insert
-      - key: audit.tenant_id
-        action: insert
-      - key: audit.user_id
-        action: insert
-      - key: audit.entity_id
-        action: insert
 
   # Processador batch para otimizar envio de logs ao Loki
   batch:
