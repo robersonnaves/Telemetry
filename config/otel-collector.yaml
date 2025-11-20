@@ -28,7 +28,7 @@ processors:
       - key: service.name
         action: upsert
         from_attribute: service.name
-
+      
       # Labels de identificação de tipo de log (data tracking)
       - key: log_type
         action: insert
@@ -36,7 +36,7 @@ processors:
         action: insert
       - key: log_source
         action: insert
-
+      
       # Labels de auditoria (data tracking)
       - key: audit.entity_name
         action: insert
@@ -60,38 +60,22 @@ exporters:
     endpoint: jaeger:4317
     tls:
       insecure: true
-
+  
   # Traces para Tempo
   otlp/tempo:
     endpoint: tempo:4317
     tls:
       insecure: true
-
+  
   # Métricas para Prometheus
   prometheus:
     endpoint: 0.0.0.0:8889
-
+  
   # Logs para Loki via OTLP
+  # Os labels são extraídos automaticamente pelos processadores 'attributes'
+  # e enviados como atributos do log. O Loki processará esses atributos via OTLP.
   otlphttp/loki:
     endpoint: http://loki:3100/otlp
-    # Mapeamento de labels para indexação no Loki
-    labels:
-      resource:
-        service.name: "service_name"
-        service.namespace: "service_namespace"
-      attributes:
-        # Labels de identificação de tipo de log
-        log_type: "log_type"
-        log_category: "log_category"
-        log_source: "log_source"
-        # Labels de auditoria (data tracking)
-        audit.entity_name: "audit_entity_name"
-        audit.operation: "audit_operation"
-        audit.tenant_id: "audit_tenant_id"
-        audit.user_id: "audit_user_id"
-        audit.entity_id: "audit_entity_id"
-        # Labels comuns
-        severity: "severity"
 
 service:
   pipelines:
@@ -99,14 +83,14 @@ service:
     traces:
       receivers: [otlp]
       processors: [resourcedetection, resource]
-      exporters: [otlp, otlp/tempo] # Jaeger e Tempo
-
+      exporters: [otlp, otlp/tempo]  # Jaeger e Tempo
+    
     # Pipeline de métricas
     metrics:
       receivers: [otlp]
       processors: [resourcedetection, resource]
       exporters: [prometheus]
-
+    
     # Pipeline de logs
     logs:
       receivers: [otlp]
