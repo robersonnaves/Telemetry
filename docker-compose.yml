@@ -102,6 +102,12 @@ services:
   telegraf:
     container_name: telemetry-telegraf
     image: telegraf:latest
+    user: root
+    cap_add:
+      - SETUID
+      - SETGID
+    security_opt:
+      - no-new-privileges:false
     restart: unless-stopped
     depends_on:
       - questdb
@@ -113,7 +119,7 @@ services:
       - telemetry
       - central
     healthcheck:
-      test: ["CMD", "sh", "-c", "exec echo PING"]
+      test: ["CMD", "telegraf", "--version"]
       interval: 30s
       timeout: 5s
       retries: 3
