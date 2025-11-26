@@ -1,0 +1,75 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "grafana"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Prometheus: up (last 15m)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "up",
+          "legendFormat": "{{job}} - {{instance}}"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "table",
+      "title": "QuestDB: up sample (last 15m)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "postgres", "uid": "QuestDB" },
+      "pluginVersion": "9.5.0",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT to_timestamp(timestamp) AS time, value, labels FROM up WHERE timestamp >= dateadd('m', -15, now()) ORDER BY timestamp DESC LIMIT 50;",
+          "refId": "A",
+          "select": [
+            [
+              { "type": "column", "params": ["time"] }
+            ]
+          ],
+          "table": ""
+        }
+      ]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["ingestion", "questdb"],
+  "templating": { "list": [] },
+  "time": { "from": "now-15m", "to": "now" },
+  "timepicker": {},
+  "timezone": "",
+  "title": "QuestDB Ingestion Check",
+  "uid": "questdb-ingestion-check",
+  "version": 1,
+  "weekStart": ""
+}
