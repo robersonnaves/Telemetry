@@ -99,6 +99,26 @@ services:
       retries: 3
       start_period: 10s
 
+  telegraf:
+    container_name: telemetry-telegraf
+    image: telegraf:latest
+    restart: unless-stopped
+    depends_on:
+      - questdb
+    volumes:
+      - ./config/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+    ports:
+      - "9201:9201"   # Prometheus remote_write receiver
+    networks:
+      - telemetry
+      - central
+    healthcheck:
+      test: ["CMD", "sh", "-c", "exec echo PING"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
   grafana:
     container_name: telemetry-grafana
     image: grafana/grafana:latest

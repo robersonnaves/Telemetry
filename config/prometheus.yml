@@ -3,12 +3,12 @@ global:
   evaluation_interval: 15s
 
 remote_write:
-  - url: "http://questdb:9009/write"
+  - url: "http://telegraf:9201/write"
     queue_config:
-      capacity: 10000
-      max_shards: 5
+      capacity: 30000
+      max_shards: 10
       min_shards: 1
-      max_samples_per_send: 5000
+      max_samples_per_send: 8000
       batch_send_deadline: 5s
       min_backoff: 30ms
       max_backoff: 5s
