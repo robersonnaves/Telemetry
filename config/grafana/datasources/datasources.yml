@@ -84,3 +84,21 @@ datasources:
         hide: false
       lokiSearch:
         datasourceUid: Loki
+
+  # QuestDB - datasource para armazenamento de longa duração de métricas
+  - name: QuestDB
+    type: postgres
+    access: proxy
+    url: questdb:8812
+    database: qdb
+    user: admin
+    editable: true
+    secureJsonData:
+      password: quest
+    jsonData:
+      sslmode: disable
+      maxOpenConns: 10
+      maxIdleConns: 5
+      connMaxLifetime: 14400
+      postgresVersion: 1400
+      timescaledb: false

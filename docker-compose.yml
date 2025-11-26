@@ -73,6 +73,32 @@ services:
       - central
       - telemetry
 
+  questdb:
+    container_name: telemetry-questdb
+    image: questdb/questdb:latest
+    restart: unless-stopped
+    ports:
+      - "9000:9000"   # Web Console
+      - "8812:8812"   # PostgreSQL wire protocol
+      - "9009:9009"   # InfluxDB line protocol (Prometheus remote write)
+      - "9003:9003"   # REST API / Metrics
+    volumes:
+      - questdb-data:/var/lib/questdb
+    environment:
+      - QDB_PG_USER=admin
+      - QDB_PG_PASSWORD=quest
+      - QDB_CAIRO_COMMIT_LAG=5000
+      - QDB_LINE_DEFAULT_PARTITION_BY=DAY
+    networks:
+      - telemetry
+      - central
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
   grafana:
     container_name: telemetry-grafana
     image: grafana/grafana:latest
@@ -122,6 +148,7 @@ volumes:
   loki-data:
   grafana-data:
   tempo-data:
+  questdb-data:
 
 networks:
   telemetry:
