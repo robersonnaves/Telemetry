@@ -104,13 +104,16 @@ services:
     container_name: telemetry-telegraf
     image: telegraf:latest
     user: root
-    entrypoint: ["telegraf"]
-    command: ["--config", "/etc/telegraf/telegraf.conf"]
+    entrypoint: ["/bin/bash", "/scripts/wait-for-questdb.sh"]
+    environment:
+      - QUESTDB_HOST=questdb
+      - QUESTDB_ILP_PORT=9009
     restart: unless-stopped
     depends_on:
       - questdb
     volumes:
       - ./config/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+      - ./scripts/wait-for-questdb.sh:/scripts/wait-for-questdb.sh:ro
     ports:
       - "9201:9201"   # Prometheus remote_write receiver
     networks:
