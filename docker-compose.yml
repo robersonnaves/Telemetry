@@ -103,11 +103,8 @@ services:
     container_name: telemetry-telegraf
     image: telegraf:latest
     user: root
-    cap_add:
-      - SETUID
-      - SETGID
-    security_opt:
-      - no-new-privileges:false
+    entrypoint: ["telegraf"]
+    command: ["--config", "/etc/telegraf/telegraf.conf"]
     restart: unless-stopped
     depends_on:
       - questdb
