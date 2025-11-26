@@ -89,6 +89,7 @@ services:
       - QDB_PG_PASSWORD=quest
       - QDB_CAIRO_COMMIT_LAG=5000
       - QDB_LINE_DEFAULT_PARTITION_BY=DAY
+      - QDB_LINE_TCP_BIND_TO=0.0.0.0:9009
     networks:
       - telemetry
       - central
