@@ -22,11 +22,20 @@ processors:
     override: false
 
   # Processador de atributos para logs
+  # Os atributos de data tracking (log_type, log_category, audit.*) já vêm
+  # automaticamente do log via BeginScope no AuditLogger, então não precisam
+  # ser criados aqui. Este processador apenas preserva service.name.
   attributes:
     actions:
+      # Preservar service.name (já existe como atributo de recurso)
       - key: service.name
         action: upsert
         from_attribute: service.name
+
+  # Processador batch para otimizar envio de logs ao Loki
+  batch:
+    timeout: 1s
+    send_batch_size: 1024
 
 exporters:
   # Traces para Jaeger
@@ -46,6 +55,8 @@ exporters:
     endpoint: 0.0.0.0:8889
   
   # Logs para Loki via OTLP
+  # Os labels são extraídos automaticamente pelos processadores 'attributes'
+  # e enviados como atributos do log. O Loki processará esses atributos via OTLP.
   otlphttp/loki:
     endpoint: http://loki:3100/otlp
 
@@ -66,5 +77,5 @@ service:
     # Pipeline de logs
     logs:
       receivers: [otlp]
-      processors: [resourcedetection, resource, attributes]
+      processors: [resourcedetection, resource, attributes, batch]
       exporters: [otlphttp/loki]
