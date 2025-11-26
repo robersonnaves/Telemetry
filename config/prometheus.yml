@@ -3,7 +3,7 @@ global:
   evaluation_interval: 15s
 
 remote_write:
-  - url: "http://telegraf:9201/write"
+  - url: "http://telegraf:9201/api/v1/write"
     queue_config:
       capacity: 30000
       max_shards: 10
