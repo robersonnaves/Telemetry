@@ -78,7 +78,7 @@ services:
     image: questdb/questdb:latest
     restart: unless-stopped
     ports:
-      - "9000:9000"   # Web Console
+      - "9001:9000"   # Web Console
       - "8812:8812"   # PostgreSQL wire protocol
       - "9009:9009"   # InfluxDB line protocol (Prometheus remote write)
       - "9003:9003"   # REST API / Metrics
