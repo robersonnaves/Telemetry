@@ -31,6 +31,13 @@ scrape_configs:
       - targets: ['localhost:9090']
     scrape_interval: 15s
   
+  # Mock Telemetry Generator - exposed on host port 6666
+  - job_name: 'mock-telemetry-generator'
+    static_configs:
+      - targets: ['192.168.200.210:6666']
+    scrape_interval: 15s
+    metrics_path: /metrics
+  
   # cAdvisor - métricas de containers
   - job_name: 'cadvisor'
     static_configs:

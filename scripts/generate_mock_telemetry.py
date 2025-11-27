@@ -30,6 +30,7 @@ try:
     from opentelemetry.trace import Status, StatusCode
     from faker import Faker
     import requests
+    from prometheus_client import start_http_server, Counter as PmCounter, Histogram as PmHistogram, Gauge as PmGauge
 except ImportError as e:
     print(f"Erro: Dependência ausente. Instale com:")
     print("pip install opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp-proto-grpc faker requests")
@@ -39,6 +40,7 @@ except ImportError as e:
 # Configuração
 OTEL_ENDPOINT = "http://192.168.200.210:4317"  # OpenTelemetry Collector gRPC
 LOKI_ENDPOINT = "http://192.168.200.210:3100/loki/api/v1/push"  # Loki para logs
+PROMETHEUS_METRICS_PORT = 6666
 
 fake = Faker()
 
@@ -62,6 +64,30 @@ def setup_telemetry(service_name: str = "mock-telemetry-generator"):
     metrics.set_meter_provider(meter_provider)
     
     return trace.get_tracer(__name__), metrics.get_meter(__name__)
+
+# Prometheus metrics
+pm_request_counter = PmCounter(
+    "mock_http_requests_total",
+    "Total HTTP requests (mock)",
+    ["endpoint", "method", "status"]
+)
+
+pm_error_counter = PmCounter(
+    "mock_http_errors_total",
+    "Total HTTP errors (mock)",
+    ["endpoint", "method", "status"]
+)
+
+pm_latency_histogram = PmHistogram(
+    "mock_http_request_duration_seconds",
+    "HTTP request latency (mock)",
+    buckets=(0.01, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0)
+)
+
+pm_active_connections = PmGauge(
+    "mock_active_connections",
+    "Number of active connections (mock)"
+)
 
 
 def generate_traces(tracer, count: int = 5):
@@ -117,11 +143,15 @@ def generate_metrics(request_counter, error_counter, latency_histogram):
         }
         
         request_counter.add(1, attributes)
+        pm_request_counter.labels(endpoint, method, str(status)).inc()
         
         if status >= 400:
             error_counter.add(1, attributes)
+            pm_error_counter.labels(endpoint, method, str(status)).inc()
         
-        latency_histogram.record(random.uniform(0.01, 2.0), attributes)
+        latency = random.uniform(0.01, 2.0)
+        latency_histogram.record(latency, attributes)
+        pm_latency_histogram.observe(latency)
 
 
 def generate_logs(count: int = 10):
@@ -186,6 +216,12 @@ def main():
     print()
     
     tracer, meter = setup_telemetry(args.service)
+    # Start Prometheus /metrics server
+    try:
+        start_http_server(PROMETHEUS_METRICS_PORT)
+        print(f"   Prometheus metrics endpoint: http://localhost:{PROMETHEUS_METRICS_PORT}/metrics")
+    except Exception as e:
+        print(f"⚠️  Failed to start /metrics server on {PROMETHEUS_METRICS_PORT}: {e}")
     
     # Create metrics instruments once to avoid duplicate warnings
     request_counter = meter.create_counter(
@@ -211,6 +247,7 @@ def main():
     
     def active_connections_callback(options):
         value = get_active_connections()
+        pm_active_connections.set(value)
         return [Observation(value, {})]
 
     meter.create_observable_gauge(
