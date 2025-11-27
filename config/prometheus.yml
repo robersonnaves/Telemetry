@@ -34,7 +34,7 @@ scrape_configs:
   # Mock Telemetry Generator - exposed on host port 6666
   - job_name: 'mock-telemetry-generator'
     static_configs:
-      - targets: ['192.168.200.210:6666']
+      - targets: ['192.168.200.251:6666']
     scrape_interval: 15s
     metrics_path: /metrics
   
@@ -58,15 +58,6 @@ scrape_configs:
       - targets: ['questdb:9003']
     scrape_interval: 15s
     metrics_path: /metrics
-
-  - job_name: 'mock'
-    static_configs:
-      - targets: ['192.168.200.251:6666']
-    scrape_interval: 15s
-    metrics_path: /metrics
-
-
-
 
   # - job_name: 'rcheck-api'  
   #   static_configs:
