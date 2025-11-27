@@ -59,6 +59,15 @@ scrape_configs:
     scrape_interval: 15s
     metrics_path: /metrics
 
+  - job_name: 'mock'
+    static_configs:
+      - targets: ['192.168.200.251:6666']
+    scrape_interval: 15s
+    metrics_path: /metrics
+
+
+
+
   # - job_name: 'rcheck-api'  
   #   static_configs:
   #     - targets: ['rcheck-api:5001']
