@@ -37,8 +37,9 @@ except ImportError as e:
 
 
 # Configuração
-OTEL_ENDPOINT = "http://192.168.200.210:4317"  # OpenTelemetry Collector gRPC
-LOKI_ENDPOINT = "http://192.168.200.210:3100/loki/api/v1/push"  # Loki para logs
+# Usa localhost para enviar ao collector exposto na máquina host (porta 4317) e Loki em 3100.
+OTEL_ENDPOINT = "http://localhost:4317"  # OpenTelemetry Collector gRPC
+LOKI_ENDPOINT = "http://localhost:3100/loki/api/v1/push"  # Loki para logs
 
 fake = Faker()
 

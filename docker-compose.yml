@@ -19,8 +19,7 @@ services:
       - COLLECTOR_OTLP_ENABLED=true
     ports:
       - "16686:16686"   # Jaeger UI
-      - "4317:4317"     # OTLP gRPC
-      - "4318:4318"     # OTLP HTTP
+      # OTLP gRPC/HTTP permanecem apenas dentro da rede Docker (evita conflito com collector em 4317)
     networks:
       - telemetry
       - central
