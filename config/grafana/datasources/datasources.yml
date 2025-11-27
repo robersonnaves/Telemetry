@@ -87,18 +87,17 @@ datasources:
 
   # QuestDB - datasource para armazenamento de longa duração de métricas
   - name: QuestDB
-    type: QuestDB
-    access: proxy
-    url: http://questdb:8812
-    database: qdb
-    user: admin
-    editable: true
+    type: questdb-questdb-datasource
+    jsonData:
+      server: telemetry-questdb
+      port: 8812
+      username: admin
+      tlsMode: disable
+      # timeout: <seconds>
+      # queryTimeout: <seconds>
+      maxOpenConnections: 100
+      maxIdleConnections: 100
+      maxConnectionLifetime: 14400
     secureJsonData:
       password: quest
-    jsonData:
-      sslmode: disable
-      maxOpenConns: 10
-      maxIdleConns: 5
-      connMaxLifetime: 14400
-#      postgresVersion: 1400
-      timescaledb: false
+      # tlsCACert: <string>
