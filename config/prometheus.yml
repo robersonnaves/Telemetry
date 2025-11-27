@@ -30,13 +30,7 @@ scrape_configs:
     static_configs:
       - targets: ['localhost:9090']
     scrape_interval: 15s
-
-  - job_name: 'rcheck-api'  
-    static_configs:
-      - targets: ['rcheck-api:5001']
-    scrape_interval: 15s
-    metrics_path: /api/debug/metrics
-
+  
   # cAdvisor - métricas de containers
   - job_name: 'cadvisor'
     static_configs:
@@ -57,3 +51,9 @@ scrape_configs:
       - targets: ['questdb:9003']
     scrape_interval: 15s
     metrics_path: /metrics
+
+    - job_name: 'rcheck-api'  
+    static_configs:
+      - targets: ['rcheck-api:5001']
+    scrape_interval: 15s
+    metrics_path: /api/debug/metrics

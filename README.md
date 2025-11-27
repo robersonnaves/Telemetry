@@ -10,6 +10,68 @@ Applications → OpenTelemetry Collector → Traces  → Jaeger All-in-One
                                           Logs    → Loki
 ```
 
+```mermaid
+flowchart LR
+  subgraph Apps[Aplicações]
+    A1[SDKs OpenTelemetry<br/>OTLP gRPC/HTTP]
+  end
+
+  A1 -- OTLP (4317/4318) --> OC[OpenTelemetry Collector]
+
+  %% Traces
+  OC -- Traces (OTLP) --> JAEGER[Jaeger All-in-One]
+  OC -- Traces (OTLP) --> TEMPO[Grafana Tempo]
+
+  %% Métricas
+  OC == Exposição /metrics (8889) ==> PROM[Prometheus]
+  TELEGRAF[Telegraf] -. Prometheus remote_write (9201) .-> PROM
+
+  %% Logs
+  OC -- Logs (HTTP) --> LOKI[Loki]
+
+  %% Armazenamento adicional
+  TELEGRAF -- InfluxDB Line Protocol (ILP 9009) --> QDB[QuestDB]
+
+  %% Visualização
+  GRAFANA[Grafana] --- consulta ---> PROM
+  GRAFANA --- consulta ---> LOKI
+  GRAFANA --- consulta ---> TEMPO
+  JAEGER --- UI:16686 --- VIS[Usuário]
+  GRAFANA --- UI:3000 --- VIS
+
+  classDef svc fill:#0ea5e9,stroke:#0369a1,color:#fff;
+  classDef store fill:#34d399,stroke:#047857,color:#fff;
+  class OC,JAEGER,TEMPO,PROM,LOKI,GRAFANA,TELEGRAF svc;
+  class QDB store;
+```
+
+#### Legenda do Diagrama
+
+| Símbolo | Significado |
+|---------|-------------|
+| `A -- B` | Envio/push direto (stream/export) |
+| `A == B ==> C` | Endpoint exposto para scraping Prometheus (`/metrics`) |
+| `A -. B .-> C` | remote_write / fluxo assíncrono / integração indireta |
+| `A --- consulta ---> B` | Query/consulta de leitura (Grafana / UI) |
+
+| Porta | Uso |
+|-------|-----|
+| 4317 / 4318 | OTLP gRPC / HTTP (Collector, Tempo, SDKs) |
+| 8889 | Exposição de métricas do Collector para Prometheus |
+| 16686 | UI Jaeger (traces) |
+| 3000 | UI Grafana |
+| 3100 | API Loki |
+| 3200 | API Tempo |
+| 9009 | InfluxDB Line Protocol (Telegraf → QuestDB) |
+| 9201 | Prometheus remote_write receiver (Telegraf) |
+| 9000 | QuestDB Web Console |
+| 8812 | QuestDB PostgreSQL wire protocol |
+
+Observações:
+- Traces podem ir tanto para Jaeger (visualização rápida) quanto para Tempo (integração mais ampla com Grafana). 
+- Telegraf coleta e envia métricas para Prometheus e dados de séries temporais para QuestDB via ILP.
+- Grafana consolida visualização cruzada (métricas, logs e traces).
+
 ### Por que quatro serviços?
 
 - **OpenTelemetry Collector**: Coletor universal que recebe dados via OTLP de diferentes aplicações e protocolos
