@@ -15,8 +15,12 @@ services:
   jaeger:
     container_name: telemetry-jaeger
     image: jaegertracing/all-in-one:latest
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
     ports:
-      - "16686:16686"
+      - "16686:16686"   # Jaeger UI
+      - "4317:4317"     # OTLP gRPC
+      - "4318:4318"     # OTLP HTTP
     networks:
       - telemetry
       - central
@@ -64,8 +68,9 @@ services:
     command: ["-config.file=/etc/tempo/tempo.yml"]
     ports:
       - "3200:3200"   # Tempo API
-      - "14317:4317"  # OTLP gRPC (porta ajustada)
-      - "14318:4318"  # OTLP HTTP (porta ajustada)
+      - "3201:3100"   # Tempo distributor
+      - "14317:4317"  # OTLP gRPC
+      - "14318:4318"  # OTLP HTTP
     volumes:
       - ./config/tempo.yml:/etc/tempo/tempo.yml
       - tempo-data:/var/tempo

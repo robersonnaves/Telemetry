@@ -1,0 +1,6 @@
+# Dependências para geração de telemetria mockada (versions aligned)
+opentelemetry-api==1.27.0
+opentelemetry-sdk==1.27.0
+opentelemetry-exporter-otlp-proto-grpc==1.27.0
+faker==25.2.0
+requests==2.32.3
