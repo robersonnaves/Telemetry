@@ -5,7 +5,7 @@
     "questdb",
     "ingestao"
   ],
-  "timezone": "America/Sao_Paulo",
+  "timezone": "browser",
   "time": {
     "from": "now-24h",
     "to": "now"
