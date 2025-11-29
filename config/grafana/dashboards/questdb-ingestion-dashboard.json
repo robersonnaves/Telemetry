@@ -1,8 +1,15 @@
 {
   "title": "Infra Prometheus - QuestDB [Ingestão]",
-  "tags": ["prometheus", "questdb", "ingestao"],
+  "tags": [
+    "prometheus",
+    "questdb",
+    "ingestao"
+  ],
   "timezone": "America/Sao_Paulo",
-  "time": { "from": "now-24h", "to": "now" },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
   "panels": [
     {
       "id": 1,
@@ -15,7 +22,12 @@
           "format": "time_series"
         }
       ],
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 }
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      }
     },
     {
       "id": 2,
@@ -28,7 +40,12 @@
           "format": "time_series"
         }
       ],
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 }
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      }
     },
     {
       "id": 3,
@@ -41,7 +58,12 @@
           "format": "time_series"
         }
       ],
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 8 }
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      }
     },
     {
       "id": 4,
@@ -54,7 +76,12 @@
           "format": "table"
         }
       ],
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 }
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      }
     },
     {
       "id": 5,
@@ -67,7 +94,12 @@
           "format": "table"
         }
       ],
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 }
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      }
     }
   ],
   "templating": {
@@ -75,7 +107,8 @@
       {
         "name": "job",
         "type": "query",
-        "query": "SELECT DISTINCT job FROM prometheus_remote_write WHERE timestamp > dateadd('d', -7, now())",
+        "datasource": "QuestDB",
+        "query": "SELECT job FROM prometheus_remote_write WHERE timestamp > dateadd('d', -7, now()) GROUP BY job",
         "multi": true,
         "includeAll": true
       }
@@ -83,7 +116,9 @@
   },
   "annotations": {
     "list": [
-      { "builtIn": 1 }
+      {
+        "builtIn": 1
+      }
     ]
   }
 }
