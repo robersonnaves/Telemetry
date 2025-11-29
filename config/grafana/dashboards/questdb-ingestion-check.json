@@ -1,278 +1,80 @@
 {
-  "annotations": {
-    "list": [
+  "dashboard": {
+    "title": "Infra Prometheus - QuestDB [Ingestão]",
+    "tags": ["prometheus", "questdb", "ingestao"],
+    "time": {"from": "now-24h", "to": "now"},
+    "timezone": "America/Sao_Paulo",
+    "panels": [
       {
-        "builtIn": 1,
-        "datasource": {
-          "type": "grafana",
-          "uid": "grafana"
-        },
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
-        "type": "dashboard"
+        "id": 1,
+        "title": "Taxa de Ingestão (Amostras/Hora)",
+        "type": "timeseries",
+        "targets": [{
+          "datasource": "QuestDB",
+          "rawSql": "SELECT timestamp, to_str(CAST(timestamp AS DATE), 'yyyy-MM-dd HH') as hora, count() as amostras FROM prometheus_remote_write WHERE timestamp > dateadd('h', -24, now()) GROUP BY CAST(timestamp AS HOUR), job ORDER BY timestamp",
+          "format": "time_series"
+        }],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Crescimento Tabela (Linhas Totais)",
+        "type": "stat",
+        "targets": [{
+          "datasource": "QuestDB",
+          "rawSql": "SELECT to_str(CAST(timestamp AS DATE), 'yyyy-MM-dd') as data, count() as total_linhas FROM prometheus_remote_write GROUP BY CAST(timestamp AS DATE) ORDER BY data DESC LIMIT 7",
+          "format": "table"
+        }],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Scrape Prometheus (Erros/Sucessos)",
+        "type": "timeseries",
+        "targets": [{
+          "datasource": "QuestDB",
+          "rawSql": "SELECT timestamp, job, avg(scrape_duration_seconds) as scrape_seg, avg(scrape_samples_scraped) as amostras_scraped, avg(scrape_samples_post_metric_relabeling) as amostras_relabel FROM prometheus_remote_write WHERE timestamp > dateadd('h', -6, now()) AND scrape_duration_seconds IS NOT NULL GROUP BY timestamp, job",
+          "format": "time_series"
+        }],
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 8}
+      },
+      {
+        "id": 4,
+        "title": "Remote Write (Samples Pendentes)",
+        "type": "stat",
+        "targets": [{
+          "datasource": "QuestDB",
+          "rawSql": "SELECT job, avg(prometheus_remote_storage_samples_pending) as samples_pendentes, avg(prometheus_remote_storage_samples_in_total) as samples_total, avg(prometheus_remote_storage_samples_failed_total) as samples_falha FROM prometheus_remote_write WHERE timestamp > dateadd('h', -1, now()) GROUP BY job ORDER BY samples_pendentes DESC LIMIT 5",
+          "format": "table"
+        }],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+        "fieldConfig": {"defaults": {"color": {"mode": "thresholds", "steps": [{"color": "red", "value": null}]}}}
+      },
+      {
+        "id": 5,
+        "title": "CPU + Memória (6h)",
+        "type": "timeseries",
+        "targets": [{
+          "datasource": "QuestDB",
+          "rawSql": "SELECT timestamp, job, avg(node_cpu_seconds_total) as cpu, avg(node_memory_MemAvailable_bytes/1024/1024/1024) as mem_gb FROM prometheus_remote_write WHERE timestamp > dateadd('h', -6, now()) GROUP BY timestamp, job",
+          "format": "time_series"
+        }],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16}
       }
-    ]
-  },
-  "description": "Dashboard para validar ingestão de métricas do Prometheus via Telegraf no QuestDB (ILP). Compara dados quentes (Prometheus 7d) vs armazenamento de longo prazo (QuestDB).",
-  "editable": true,
-  "fiscalYearStartMonth": 0,
-  "graphTooltip": 1,
-  "links": [],
-  "liveNow": false,
-  "panels": [
-    {
-      "id": 1,
-      "type": "timeseries",
-      "title": "Prometheus: up (últimos 15m)",
-      "description": "Métricas 'up' coletadas pelo Prometheus (dados quentes com retenção de 7 dias)",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
-      "datasource": { "type": "prometheus", "uid": "Prometheus" },
-      "targets": [
+    ],
+    "templating": {
+      "list": [
         {
-          "refId": "A",
-          "expr": "up",
-          "legendFormat": "{{job}} - {{instance}}"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": { "tooltip": false, "viz": false, "legend": false },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": { "type": "linear" },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": { "group": "A", "mode": "none" },
-            "thresholdsStyle": { "mode": "off" }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null }
-            ]
-          },
-          "unit": "short"
-        }
-      }
-    },
-    {
-      "id": 2,
-      "type": "table",
-      "title": "QuestDB: up sample (últimos 15m)",
-      "description": "Amostras da métrica 'up' armazenadas no QuestDB via Telegraf ILP. Vazio = ingestão ainda não iniciada.",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
-      "datasource": { "type": "postgres", "uid": "QuestDB" },
-      "pluginVersion": "9.5.0",
-      "targets": [
-        {
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT to_timestamp(timestamp) AS time, value, labels FROM up WHERE timestamp >= dateadd('m', -15, now()) ORDER BY timestamp DESC LIMIT 50;",
-          "refId": "A",
-          "select": [
-            [
-              { "type": "column", "params": ["time"] }
-            ]
-          ],
-          "table": ""
+          "name": "job",
+          "type": "query",
+          "query": "SELECT DISTINCT job FROM prometheus_remote_write WHERE timestamp > dateadd('d', -7, now())",
+          "multi": true,
+          "includeAll": true
         }
       ]
     },
-    {
-      "id": 3,
-      "type": "stat",
-      "title": "Prometheus Remote Write Queue",
-      "description": "Amostras pendentes na fila de remote_write do Prometheus para Telegraf. Deve permanecer próximo de zero.",
-      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 8 },
-      "datasource": { "type": "prometheus", "uid": "Prometheus" },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "prometheus_remote_storage_pending_samples",
-          "legendFormat": "Pending"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 5000 },
-              { "color": "red", "value": 20000 }
-            ]
-          },
-          "unit": "short"
-        }
-      }
-    },
-    {
-      "id": 4,
-      "type": "stat",
-      "title": "Tabelas no QuestDB",
-      "description": "Número de tabelas (measurements) criadas no QuestDB. Aumenta conforme novas métricas são ingeridas.",
-      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 8 },
-      "datasource": { "type": "postgres", "uid": "QuestDB" },
-      "targets": [
-        {
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT count(*) as table_count FROM tables();",
-          "refId": "A"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "red", "value": null },
-              { "color": "yellow", "value": 1 },
-              { "color": "green", "value": 5 }
-            ]
-          },
-          "unit": "short"
-        }
-      }
-    },
-    {
-      "id": 5,
-      "type": "timeseries",
-      "title": "Prometheus Remote Write Taxa de Sucesso",
-      "description": "Taxa de amostras enviadas com sucesso vs total enviado. Deve manter-se em 100%.",
-      "gridPos": { "h": 4, "w": 12, "x": 12, "y": 8 },
-      "datasource": { "type": "prometheus", "uid": "Prometheus" },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "rate(prometheus_remote_storage_samples_total[5m])",
-          "legendFormat": "Total Sent"
-        },
-        {
-          "refId": "B",
-          "expr": "rate(prometheus_remote_storage_succeeded_samples_total[5m])",
-          "legendFormat": "Succeeded"
-        },
-        {
-          "refId": "C",
-          "expr": "rate(prometheus_remote_storage_failed_samples_total[5m])",
-          "legendFormat": "Failed"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "samples/s",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": { "tooltip": false, "viz": false, "legend": false },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": { "type": "linear" },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": { "group": "A", "mode": "none" },
-            "thresholdsStyle": { "mode": "off" }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null }
-            ]
-          },
-          "unit": "short"
-        }
-      }
-    },
-    {
-      "id": 6,
-      "type": "table",
-      "title": "Lista de Tabelas no QuestDB",
-      "description": "Todas as tabelas (metrics) atualmente armazenadas no QuestDB com contagem de linhas.",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
-      "datasource": { "type": "postgres", "uid": "QuestDB" },
-      "targets": [
-        {
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT name as metric_name FROM tables() ORDER BY name;",
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "id": 7,
-      "type": "logs",
-      "title": "Status da Ingestão",
-      "description": "Indicadores-chave de saúde do pipeline Prometheus → Telegraf → QuestDB",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
-      "datasource": { "type": "prometheus", "uid": "Prometheus" },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "up{job=\"telegraf\"}",
-          "legendFormat": "Telegraf Up"
-        },
-        {
-          "refId": "B",
-          "expr": "up{job=\"questdb\"}",
-          "legendFormat": "QuestDB Up"
-        },
-        {
-          "refId": "C",
-          "expr": "prometheus_remote_storage_queue_highest_sent_timestamp_seconds",
-          "legendFormat": "Last Send Timestamp"
-        }
-      ],
-      "options": {
-        "showLabels": false,
-        "showTime": true,
-        "wrapLogMessage": true,
-        "prettifyLogMessage": false,
-        "enableLogDetails": true,
-        "dedupStrategy": "none",
-        "sortOrder": "Descending"
-      }
+    "annotations": {
+      "list": [{"builtIn": 1}]
     }
-  ],
-  "refresh": "30s",
-  "schemaVersion": 38,
-  "style": "dark",
-  "tags": ["ingestion", "questdb", "telegraf", "prometheus", "monitoring"],
-  "templating": { "list": [] },
-  "time": { "from": "now-15m", "to": "now" },
-  "timepicker": {},
-  "timezone": "",
-  "title": "QuestDB Ingestion Check",
-  "uid": "questdb-ingestion-check",
-  "version": 2,
-  "weekStart": ""
+  }
 }
