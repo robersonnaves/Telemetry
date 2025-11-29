@@ -20,119 +20,250 @@
           {
             "datasource": "QuestDB",
             "rawSql": "SELECT timestamp, to_str(CAST(timestamp AS DATE), 'yyyy-MM-dd HH') as hora, count() as amostras FROM prometheus_remote_write WHERE timestamp > dateadd('h', -24, now()) GROUP BY CAST(timestamp AS HOUR), job ORDER BY timestamp",
-            "format": "time_series"
-          }
-        ],
-        "gridPos": {
-          "h": 8,
-          "w": 12,
-          "x": 0,
-          "y": 0
-        }
-      },
-      {
-        "id": 2,
-        "title": "Crescimento Tabela (Linhas Totais)",
-        "type": "stat",
-        "targets": [
-          {
-            "datasource": "QuestDB",
-            "rawSql": "SELECT to_str(CAST(timestamp AS DATE), 'yyyy-MM-dd') as data, count() as total_linhas FROM prometheus_remote_write GROUP BY CAST(timestamp AS DATE) ORDER BY data DESC LIMIT 7",
-            "format": "table"
-          }
-        ],
-        "gridPos": {
-          "h": 8,
-          "w": 12,
-          "x": 12,
-          "y": 0
-        }
-      },
-      {
-        "id": 3,
-        "title": "Scrape Prometheus (Erros/Sucessos)",
-        "type": "timeseries",
-        "targets": [
-          {
-            "datasource": "QuestDB",
-            "rawSql": "SELECT timestamp, job, avg(scrape_duration_seconds) as scrape_seg, avg(scrape_samples_scraped) as amostras_scraped, avg(scrape_samples_post_metric_relabeling) as amostras_relabel FROM prometheus_remote_write WHERE timestamp > dateadd('h', -6, now()) AND scrape_duration_seconds IS NOT NULL GROUP BY timestamp, job",
-            "format": "time_series"
-          }
-        ],
-        "gridPos": {
-          "h": 8,
-          "w": 24,
-          "x": 0,
-          "y": 8
-        }
-      },
-      {
-        "id": 4,
-        "title": "Remote Write (Samples Pendentes)",
-        "type": "stat",
-        "targets": [
-          {
-            "datasource": "QuestDB",
-            "rawSql": "SELECT job, avg(prometheus_remote_storage_samples_pending) as samples_pendentes, avg(prometheus_remote_storage_samples_in_total) as samples_total, avg(prometheus_remote_storage_samples_failed_total) as samples_falha FROM prometheus_remote_write WHERE timestamp > dateadd('h', -1, now()) GROUP BY job ORDER BY samples_pendentes DESC LIMIT 5",
-            "format": "table"
-          }
-        ],
-        "gridPos": {
-          "h": 8,
-          "w": 12,
-          "x": 0,
-          "y": 16
-        },
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "thresholds",
-              "steps": [
+            "format": "time_series"{
+              "title": "Infra Prometheus - QuestDB [Ingestão]",
+              "tags": [
+                "prometheus",
+                "questdb",
+                "ingestao"
+              ],
+              "time": {
+                "from": "now-24h",
+                "to": "now"
+              },
+              "timezone": "America/Sao_Paulo",
+              "panels": [
                 {
-                  "color": "red",
-                  "value": null
+                  "id": 1,
+                  "title": "Taxa de Ingestão (Amostras/Hora)",
+                  "type": "timeseries",
+                  "targets": [
+                    {
+                      "datasource": "QuestDB",
+                      "rawSql": "SELECT timestamp, to_str(CAST(timestamp AS DATE), 'yyyy-MM-dd HH') as hora, count() as amostras FROM prometheus_remote_write WHERE timestamp > dateadd('h', -24, now()) GROUP BY CAST(timestamp AS HOUR), job ORDER BY timestamp",
+                      "format": "time_series"
+                    }
+                  ],
+                  "gridPos": {
+                    "h": 8,
+                    "w": 12,
+                    "x": 0,
+                    "y": 0
+                  }
+                },
+                {
+                  "id": 2,
+                  "title": "Crescimento Tabela (Linhas Totais)",
+                  "type": "stat",
+                  "targets": [
+                    {
+                      "datasource": "QuestDB",
+                      "rawSql": "SELECT to_str(CAST(timestamp AS DATE), 'yyyy-MM-dd') as data, count() as total_linhas FROM prometheus_remote_write GROUP BY CAST(timestamp AS DATE) ORDER BY data DESC LIMIT 7",
+                      "format": "table"
+                    }
+                  ],
+                  "gridPos": {
+                    "h": 8,
+                    "w": 12,
+                    "x": 12,
+                    "y": 0
+                  }
+                },
+                {
+                  "id": 3,
+                  "title": "Scrape Prometheus (Erros/Sucessos)",
+                  "type": "timeseries",
+                  "targets": [
+                    {
+                      "datasource": "QuestDB",
+                      "rawSql": "SELECT timestamp, job, avg(scrape_duration_seconds) as scrape_seg, avg(scrape_samples_scraped) as amostras_scraped, avg(scrape_samples_post_metric_relabeling) as amostras_relabel FROM prometheus_remote_write WHERE timestamp > dateadd('h', -6, now()) AND scrape_duration_seconds IS NOT NULL GROUP BY timestamp, job",
+                      "format": "time_series"
+                    }
+                  ],
+                  "gridPos": {
+                    "h": 8,
+                    "w": 24,
+                    "x": 0,
+                    "y": 8
+                  }
+                },
+                {
+                  "id": 4,
+                  "title": "Remote Write (Samples Pendentes)",
+                  "type": "stat",
+                  "targets": [
+                    {
+                      "datasource": "QuestDB",
+                      "rawSql": "SELECT job, avg(prometheus_remote_storage_samples_pending) as samples_pendentes, avg(prometheus_remote_storage_samples_in_total) as samples_total, avg(prometheus_remote_storage_samples_failed_total) as samples_falha FROM prometheus_remote_write WHERE timestamp > dateadd('h', -1, now()) GROUP BY job ORDER BY samples_pendentes DESC LIMIT 5",
+                      "format": "table"
+                    }
+                  ],
+                  "gridPos": {
+                    "h": 8,
+                    "w": 12,
+                    "x": 0,
+                    "y": 16
+                  },
+                  "fieldConfig": {
+                    "defaults": {
+                      "color": {
+                        "mode": "thresholds",
+                        "steps": [
+                          {
+                            "color": "red",
+                            "value": null
+                          }
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "id": 5,
+                  "title": "CPU + Memória (6h)",
+                  "type": "timeseries",
+                  "targets": [
+                    {
+                      "datasource": "QuestDB",
+                      "rawSql": "SELECT timestamp, job, avg(node_cpu_seconds_total) as cpu, avg(node_memory_MemAvailable_bytes/1024/1024/1024) as mem_gb FROM prometheus_remote_write WHERE timestamp > dateadd('h', -6, now()) GROUP BY timestamp, job",
+                      "format": "time_series"
+                    }
+                  ],
+                  "gridPos": {
+                    "h": 8,
+                    "w": 12,
+                    "x": 12,
+                    "y": 16
+                  }
                 }
-              ]
+              ],
+              "templating": {
+                "list": [
+                  {
+                    "name": "job",
+                    "type": "query",
+                    "query": "SELECT DISTINCT job FROM prometheus_remote_write WHERE timestamp > dateadd('d', -7, now())",
+                    "multi": true,
+                    "includeAll": true
+                  }
+                ]
+              },
+              "annotations": {
+                "list": [
+                  {
+                    "builtIn": 1
+                  }
+                ]
+              }
+            }
+          "w": 12,
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": 2,
+          "title": "Crescimento Tabela (Linhas Totais)",
+          "type": "stat",
+          "targets": [
+            {
+              "datasource": "QuestDB",
+              "rawSql": "SELECT to_str(CAST(timestamp AS DATE), 'yyyy-MM-dd') as data, count() as total_linhas FROM prometheus_remote_write GROUP BY CAST(timestamp AS DATE) ORDER BY data DESC LIMIT 7",
+              "format": "table"
+            }
+          ],
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 0
+          }
+        },
+        {
+          "id": 3,
+          "title": "Scrape Prometheus (Erros/Sucessos)",
+          "type": "timeseries",
+          "targets": [
+            {
+              "datasource": "QuestDB",
+              "rawSql": "SELECT timestamp, job, avg(scrape_duration_seconds) as scrape_seg, avg(scrape_samples_scraped) as amostras_scraped, avg(scrape_samples_post_metric_relabeling) as amostras_relabel FROM prometheus_remote_write WHERE timestamp > dateadd('h', -6, now()) AND scrape_duration_seconds IS NOT NULL GROUP BY timestamp, job",
+              "format": "time_series"
+            }
+          ],
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 8
+          }
+        },
+        {
+          "id": 4,
+          "title": "Remote Write (Samples Pendentes)",
+          "type": "stat",
+          "targets": [
+            {
+              "datasource": "QuestDB",
+              "rawSql": "SELECT job, avg(prometheus_remote_storage_samples_pending) as samples_pendentes, avg(prometheus_remote_storage_samples_in_total) as samples_total, avg(prometheus_remote_storage_samples_failed_total) as samples_falha FROM prometheus_remote_write WHERE timestamp > dateadd('h', -1, now()) GROUP BY job ORDER BY samples_pendentes DESC LIMIT 5",
+              "format": "table"
+            }
+          ],
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 16
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": null
+                  }
+                ]
+              }
             }
           }
-        }
-      },
-      {
-        "id": 5,
-        "title": "CPU + Memória (6h)",
-        "type": "timeseries",
-        "targets": [
-          {
-            "datasource": "QuestDB",
-            "rawSql": "SELECT timestamp, job, avg(node_cpu_seconds_total) as cpu, avg(node_memory_MemAvailable_bytes/1024/1024/1024) as mem_gb FROM prometheus_remote_write WHERE timestamp > dateadd('h', -6, now()) GROUP BY timestamp, job",
-            "format": "time_series"
+        },
+        {
+          "id": 5,
+          "title": "CPU + Memória (6h)",
+          "type": "timeseries",
+          "targets": [
+            {
+              "datasource": "QuestDB",
+              "rawSql": "SELECT timestamp, job, avg(node_cpu_seconds_total) as cpu, avg(node_memory_MemAvailable_bytes/1024/1024/1024) as mem_gb FROM prometheus_remote_write WHERE timestamp > dateadd('h', -6, now()) GROUP BY timestamp, job",
+              "format": "time_series"
+            }
+          ],
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 16
           }
-        ],
-        "gridPos": {
-          "h": 8,
-          "w": 12,
-          "x": 12,
-          "y": 16
         }
+      ],
+      "templating": {
+        "list": [
+          {
+            "name": "job",
+            "type": "query",
+            "query": "SELECT DISTINCT job FROM prometheus_remote_write WHERE timestamp > dateadd('d', -7, now())",
+            "multi": true,
+            "includeAll": true
+          }
+        ]
+      },
+      "annotations": {
+        "list": [
+          {
+            "builtIn": 1
+          }
+        ]
       }
-    ],
-    "templating": {
-      "list": [
-        {
-          "name": "job",
-          "type": "query",
-          "query": "SELECT DISTINCT job FROM prometheus_remote_write WHERE timestamp > dateadd('d', -7, now())",
-          "multi": true,
-          "includeAll": true
-        }
-      ]
-    },
-    "annotations": {
-      "list": [
-        {
-          "builtIn": 1
-        }
-      ]
     }
   }
-}
