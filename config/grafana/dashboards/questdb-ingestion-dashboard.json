@@ -18,7 +18,7 @@
       "targets": [
         {
           "datasource": "QuestDB",
-          "rawSql": "SELECT CAST(timestamp AS HOUR) as hora, job, count() as amostras FROM prometheus_remote_write WHERE timestamp > dateadd('h', -24, now()) GROUP BY hora, job ORDER BY hora",
+          "rawSql": "SELECT to_str(timestamp, 'yyyy-MM-dd HH') as hora, job, count() as amostras FROM prometheus_remote_write WHERE timestamp > dateadd('h', -24, now())GROUP BY hora, job ORDER BY hora",
           "format": "time_series"
         }
       ],
