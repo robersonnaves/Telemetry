@@ -89,7 +89,7 @@ services:
     volumes:
       - questdb-data:/var/lib/questdb
     environment:
-      - METRICS_ENABLED=true  # Enable Prometheus metrics
+      - QDB_METRICS_ENABLED=TRUE  # Enable Prometheus metrics
       - QDB_PG_USER=admin
       - QDB_PG_PASSWORD=quest
       - QDB_CAIRO_COMMIT_LAG=5000
